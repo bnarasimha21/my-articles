@@ -1,4 +1,29 @@
-# CLAUDE.md - Article Writing Guidelines
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Repository Overview
+
+Content-only repository of articles and posts originally published on LinkedIn and X/Twitter. No build tools, tests, or dependencies — just Markdown files and metadata.
+
+## Structure
+
+- `articles/<year>/<project>/<slug>.md` — Article source content in Markdown
+- `articles/<year>/<project>/<slug>-linkedin.txt` — LinkedIn copy-paste version
+- `articles/<year>/<project>/<slug>-x-article.txt` — X article copy-paste version
+- `metadata.json` — Central index of all articles (title, date, tags, status, source)
+- `README.md` — Auto-maintained table of articles (keep in sync with metadata.json)
+
+## Conventions
+
+- Article filenames: `NN-slug-name.md` (zero-padded sequence number per year)
+- Articles without `"status"` in metadata.json are published; drafts have `"status": "draft"`
+- README table: published = ✓, drafts = 📝 Draft
+- When adding/updating an article, update both `metadata.json` and the README table
+
+---
+
+## Article Writing Guidelines
 
 ## LinkedIn Formatting Rules
 

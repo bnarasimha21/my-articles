@@ -8,7 +8,7 @@
       "tags": ["clawdbot", "digitalocean", "automation", "ai-agents"],
       "source": "x",
       "sourceUrl": "https://x.com/bnarasimha21/status/2015708943704572413",
-      "path": "articles/2026/01-clawdbot-on-digitalocean-droplet.md"
+      "path": "articles/2026/openclaw/01-clawdbot-on-digitalocean-droplet.md"
     },
     {
       "slug": "02-remotion-videos-thumbnails-with-claude",
@@ -18,7 +18,7 @@
       "status": "draft",
       "tags": ["remotion", "claude", "video", "react", "ai-assisted"],
       "source": "google-docs",
-      "path": "articles/2026/02-remotion-videos-thumbnails-with-claude.md"
+      "path": "articles/2026/remotion/02-remotion-videos-thumbnails-with-claude.md"
     }
   ]
 }
