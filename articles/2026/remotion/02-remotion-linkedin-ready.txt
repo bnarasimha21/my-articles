@@ -1,4 +1,4 @@
-Why I Use Remotion for Videos and Thumbnails (With Help From Claude)
+Code Your Videos: Using Remotion and Claude Code Together
 
 I wanted to create a video programmatically. Animated text reveals, code snippets, feature cards sliding in, transitions timed to a voiceover.
 
