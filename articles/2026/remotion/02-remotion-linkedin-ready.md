@@ -8,7 +8,7 @@ But I had recently come across Remotion. So I decided to try it.
 
 ## What is Remotion?
 
-Remotion is a framework that lets you create videos using React. You define scenes as components, control timing with frames, and render to MP4.
+Remotion (https://www.remotion.dev/) is a framework that lets you create videos using React. You define scenes as components, control timing with frames, and render to MP4.
 
 Everything is code.
 

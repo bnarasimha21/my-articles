@@ -19,6 +19,15 @@
       "tags": ["remotion", "claude", "video", "react", "ai-assisted"],
       "source": "google-docs",
       "path": "articles/2026/remotion/02-remotion-videos-thumbnails-with-claude.md"
+    },
+    {
+      "slug": "02-prompt-injection-in-ai-skills",
+      "title": "Securing AI Agent Skills Against Prompt Injection",
+      "date": "2026-02-18",
+      "year": 2026,
+      "tags": ["ai-agents", "security", "prompt-injection", "openclaw"],
+      "source": "linkedin",
+      "path": "articles/2026/prompt-injection/02-prompt-injection-in-ai-skills.md"
     }
   ]
 }

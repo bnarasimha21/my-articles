@@ -1,0 +1,12 @@
+Prompt Injection Is a Real Risk When Running AI Agents
+
+We built OpenClaw so anyone can run long-running AI agents. Research, cron jobs, multi-step workflows that run for hours.
+
+Every web search, every tool call, every page the agent reads is a potential injection surface. A single compromised website can plant instructions the agent blindly follows.
+
+Many people run OpenClaw on personal machines like Mac minis. If you understand security policies and know what to enable, that setup unlocks a lot more. 
+But if you would rather not take that risk and still want to explore what agents can do, running in a sandboxed cloud environment is a great option. Isolated containers, small blast radius, and you can still do a lot.
+
+Either way, know the risks. I wrote a deeper breakdown of the attack surface and mitigations. Link in comments.
+
+#AI #Security #PromptInjection #OpenClaw #AIAgents

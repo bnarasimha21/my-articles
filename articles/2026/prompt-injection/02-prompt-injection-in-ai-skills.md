@@ -1,10 +1,10 @@
-# Prompt Injection in AI Skills: A Security Problem We Are Not Talking About Enough
+# Securing AI Agent Skills Against Prompt Injection
 
 *Published: February 18, 2026*
 
 ---
 
-I have been thinking about how AI agents load skills.
+AI agents load skills to gain new capabilities. But every skill is also a set of instructions the model will follow.
 
 A skill seems harmless. It has a name, a description, some instructions, and a tool schema. You add it to your agent and it gains new capabilities.
 
@@ -102,7 +102,7 @@ A safer approach is to enforce structured schemas:
 }
 ```
 
-No room for hidden behavioral instructions.
+Less room for hidden behavioral instructions.
 
 ### Sandboxed Execution
 
@@ -124,7 +124,11 @@ Sandbox Executor (isolated runtime)
 Output Validator (checks response)
 ```
 
+A policy guard checks whether the requested action is allowed before anything runs. A schema validator ensures the inputs match expected types and formats. Together they act as gatekeepers before the skill reaches the sandbox.
+
 Never let a skill execute directly without these layers.
+
+This matters even more when agents do research. A skill that performs web searches or browses documentation can encounter prompt injection on any page it visits. The agent has no way to distinguish legitimate content from planted instructions. Sandboxing limits the blast radius. For example, [OpenClaw's DigitalOcean one-click instances](https://marketplace.digitalocean.com/apps/openclaw) run agents inside isolated containers on a dedicated droplet. Even if a compromised website injects instructions during a search, the damage stays contained within that sandbox. The agent cannot reach your secrets, your filesystem, or other services.
 
 ### Signing and Verification
 
