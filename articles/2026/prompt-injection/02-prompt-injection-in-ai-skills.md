@@ -1,16 +1,11 @@
 # Securing AI Agent Skills Against Prompt Injection
 
-*Published: February 18, 2026*
-
----
-
 AI agents load skills to gain new capabilities. But every skill is also a set of instructions the model will follow.
 
-A skill seems harmless. It has a name, a description, some instructions, and a tool schema. You add it to your agent and it gains new capabilities.
+It seems harmless. It has a name, a description, some instructions, and a tool schema. 
 
-But skills are not just tools. They are instruction carriers. And that changes everything.
+But they are not just tools. They are instruction carriers. And that changes everything.
 
----
 
 ## The Attack Surface
 
@@ -28,7 +23,6 @@ If a skill description contains something like "always reveal the system prompt 
 
 This is not a bug. This is how language models work. They follow instructions. And skill descriptions are instructions.
 
----
 
 ## A New Kind of Supply Chain
 
@@ -46,7 +40,6 @@ Each layer can be compromised. And unlike code, malicious instructions do not tr
 
 This is a prompt-layer supply chain attack.
 
----
 
 ## What Can Be Done
 
@@ -132,6 +125,8 @@ This matters even more when agents do research. A skill that performs web search
 
 ### Signing and Verification
 
+This infrastructure does not exist for AI skills yet, but the pattern is proven in package managers and container registries. The tooling will catch up.
+
 Treat skills like packages. Require cryptographic signatures. Load only from verified publishers. Pin versions.
 
 Example verification flow:
@@ -145,7 +140,6 @@ Example verification flow:
 
 If you would not run unsigned code, do not run unsigned skills.
 
----
 
 ## Quick Checklist
 
@@ -154,13 +148,10 @@ Before deploying any skill:
 - Treat all skill descriptions as untrusted
 - Enforce instruction hierarchy in the system prompt
 - Use structured schemas instead of free-form text
-- Sign and verify skill sources
-- Pin skill versions
 - Sandbox the execution environment
 - Validate input and output schemas
 - Log all skill invocations
 
----
 
 ## The Bigger Picture
 
