@@ -1,0 +1,54 @@
+Agent Loops: The Quiet Revolution in AI
+
+Objects in the mirror are closer than they appear.
+
+I think about this phrase a lot now. Not while driving. While watching AI evolve.
+
+Agent loops are probably the most revolutionary idea in AI from the last few months. Simple concept:
+
+Watch actions after command executes
+Analyze the result
+If failed, figure out what went wrong
+Try again
+
+The agent handles it. No pasting results. No back and forth.
+
+Using Claude Code daily changed how I see this.
+
+It reads the codebase first. Plans. Breaks requests into tasks. Delegates to sub-agents. Uses APIs and MCP tools. Keeps checking alignment with original request.
+
+Not magic. Just a relentless loop.
+
+The enterprise opportunity is massive.
+
+Customer support agents today answer questions fine. But completing tasks autonomously? Most fall short.
+
+Agent loops fix this:
+- Understand intent, not just literal requests
+- Stay context-aware of the system
+- Access right tools and APIs
+- Act, do not just respond
+- Report back when done
+
+What makes these systems work:
+
+Being relentless. Failures get analyzed. Retry.
+Understanding intent. What does user actually want?
+Context-aware. Search, docs, system state.
+Continuous alignment. Keep verifying the goal.
+
+Systems like this get better over time. Builders gain confidence: this can do almost anything a person at a computer can do.
+
+Here is the shift:
+
+We spent years training models.
+Now we train workflows.
+Multi-agent setups that complete tasks successfully.
+
+Model is the engine. Loop makes it drive.
+
+The primitives exist. Models are capable. MCP and function calling matured.
+
+Objects in the mirror are closer than they appear.
+
+The future is here. Waiting for us to build it.
