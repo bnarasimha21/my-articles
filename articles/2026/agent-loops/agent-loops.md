@@ -12,7 +12,7 @@ Feedback loops have existed for decades. Systems in robotics and reinforcement l
 
 ## The Agent Loop
 
-![The Agent Loop](images/Agent-loops-excalidraw.png)
+<img src="images/Agent-loops-excalidraw.png" alt="The Agent Loop" width="600">
 
 The key difference from traditional prompt-based systems is that reasoning happens repeatedly inside this loop. The model is not producing a single answer. It continuously evaluates progress toward the goal and adapts its plan based on real-world feedback.
 
@@ -32,9 +32,9 @@ With an agent loop, you file the claim once. The system pulls your policy detail
 
 The difference is not smarter answers. It is the ability to act.
 
-![Enterprise Agent Architecture](images/enterprise-architecture.png)
+<img src="images/enterprise-architecture.png" alt="Enterprise Agent Architecture" width="600">
 
-An agent that understands intent, is context-aware of the entire enterprise, has access to the right tools, and does not just answer but acts. Then comes back to tell you the task is complete. The diagram also shows what production systems need: shared memory across agents, guardrails on retries and cost, and the ability to escalate to a human when confidence is low.
+An agent that understands intent, is context-aware of the entire enterprise, has access to the right tools, and does not just answer but acts. Then comes back to tell you the task is complete.
 
 ## Realistic Constraints
 
@@ -44,7 +44,7 @@ Agent loops can get stuck in repeated attempts, burn through tokens on dead-end 
 
 In production, engineers add limits on iterations, execution time, and cost budgets. Equally important is knowing when to pull a human back into the loop. Full autonomy is not always the right answer. The best systems are designed to escalate when confidence is low or when the stakes are high.
 
-So how do you build systems that are both autonomous and trustworthy?
+So, the effort should be towards building systems that are both autonomous and trustworthy.
 
 ## What Comes Next
 

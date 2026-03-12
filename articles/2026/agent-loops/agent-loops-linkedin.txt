@@ -1,91 +1,15 @@
-🔄 Agent Loops: The Quiet Revolution in AI
+Agent loops are the reason AI can now get things done without you in the middle.
 
-Objects in the mirror are closer than they appear.
+The pattern is simple. Execute an action. Check the result. If something failed, figure out why. Try again. Keep going until the job is done.
 
-I have been thinking about this phrase a lot lately. Not while driving. While watching AI evolve.
+Claude Code and Codex have cracked this for coding. They read code, plan changes, run tests, fix failures, and keep going. No hand-holding needed.
 
-—
+Now imagine the same pattern applied to insurance claims, supply chain disruptions, or employee onboarding. Multiple agents, multiple systems, looping until the task is fully resolved.
 
-Agent loops are becoming one of the most important architectural patterns in modern AI systems. While feedback loops have existed for decades in robotics and control systems, combining them with LLM reasoning is what makes them powerful today.
+This is not magic. It is a loop. But it is a relentless one.
 
-The concept:
+I wrote about how agent loops work, why they matter for enterprise, and what it takes to build them right.
 
-→ Watch the actions after a command executes
-→ Analyze the result
-→ If something failed, figure out what went wrong
-→ Try again
+Link in comments.
 
-What changed is not the idea of loops itself. What is new is placing an LLM inside that loop. The model can reason about failures, adapt its strategy, and try again without requiring a human in the middle.
-
-—
-
-🛠️ How Claude Code Taught Me This
-
-Using Claude Code daily changed how I think about AI systems.
-
-It reads the codebase first. Understands structure. Then plans.
-
-It breaks requests into tasks. Delegates to sub-agents when needed. Uses APIs and MCP tools as necessary. Keeps checking if the work aligns with the original request.
-
-All while staying within guardrails.
-
-This is not magic. It is a loop. A relentless one.
-
-The key difference from prompt-based systems: reasoning happens repeatedly inside the loop. The model continuously evaluates progress and adapts based on real-world feedback.
-
-—
-
-🏢 The Enterprise Opportunity
-
-Customer support agents today answer questions well. But completing tasks autonomously? Most still fall short.
-
-Agent loops change this:
-
-→ Understand intent, not just literal requests
-→ Stay context-aware of the entire system
-→ Access the right tools and APIs
-→ Act, not just respond
-→ Report back when done
-
-We have not fully unlocked these systems yet. But we are close.
-
-—
-
-⚠️ Realistic Constraints
-
-These systems are powerful, but not perfect. Agent loops can get stuck in repeated attempts, misunderstand goals, or trigger too many calls. Production systems need limits on iterations, execution time, and cost budgets.
-
-—
-
-🎯 What Makes These Systems Work
-
-→ Relentless execution. Failure is not the end. Analyze, fix, retry.
-→ Intent-focused. Understand what user actually wants.
-→ Context-aware. Use search, docs, system state.
-→ Aligned. Regularly verify progress against the goal.
-
-When you build systems like this, they get better over time. That gives builders confidence to start automating a large class of repetitive tasks that previously required a person in front of a screen.
-
-—
-
-⚡ The Shift
-
-We spent years training models.
-Now we are training workflows.
-
-The model becomes the reasoning engine, but the surrounding loop determines how effectively that intelligence gets applied to real-world tasks.
-
-The model is the engine.
-The loop is what makes it drive.
-
-—
-
-The primitives are here. The models are capable. MCP and function calling have matured.
-
-An ecosystem is already forming. Frameworks and tools are emerging to help developers build agent loops more reliably, manage tool usage, and orchestrate multiple agents together.
-
-Objects in the mirror are closer than they appear.
-
-The future of AI agents is already here. Waiting for us to build it.
-
-#AIAgents #AgenticAI #LLM #EnterpriseAI #FutureOfWork #ArtificialIntelligence #ClaudeAI #MCP #Automation
+#AgentLoops #AI #EnterpriseAI #ClaudeCode #Agentic
