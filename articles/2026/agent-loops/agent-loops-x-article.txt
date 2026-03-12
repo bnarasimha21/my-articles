@@ -4,8 +4,9 @@ Objects in the mirror are closer than they appear.
 
 I think about this phrase a lot now. Not while driving. While watching AI evolve.
 
-Agent loops are probably the most revolutionary idea in AI from the last few months. Simple concept:
+Agent loops are becoming one of the most important architectural patterns in modern AI. Feedback loops existed for decades in robotics. What is new is placing an LLM inside that loop. The model reasons about failures, adapts strategy, retries without human intervention.
 
+The concept:
 Watch actions after command executes
 Analyze the result
 If failed, figure out what went wrong
@@ -19,6 +20,8 @@ It reads the codebase first. Plans. Breaks requests into tasks. Delegates to sub
 
 Not magic. Just a relentless loop.
 
+Key difference from prompt-based systems: reasoning happens repeatedly inside the loop. Model continuously evaluates progress and adapts based on real-world feedback.
+
 The enterprise opportunity is massive.
 
 Customer support agents today answer questions fine. But completing tasks autonomously? Most fall short.
@@ -30,24 +33,26 @@ Agent loops fix this:
 - Act, do not just respond
 - Report back when done
 
+Realistic constraints matter. These systems can get stuck, misunderstand goals, or trigger too many calls. Production systems need iteration limits, timeouts, cost budgets.
+
 What makes these systems work:
 
-Being relentless. Failures get analyzed. Retry.
-Understanding intent. What does user actually want?
+Relentless execution. Failures get analyzed. Retry.
+Intent-focused. What does user actually want?
 Context-aware. Search, docs, system state.
-Continuous alignment. Keep verifying the goal.
+Aligned. Verify progress against the goal.
 
-Systems like this get better over time. Builders gain confidence: this can do almost anything a person at a computer can do.
+Systems like this get better over time. Builders gain confidence to automate a large class of repetitive tasks that previously required a person at a screen.
 
 Here is the shift:
 
 We spent years training models.
 Now we train workflows.
-Multi-agent setups that complete tasks successfully.
+The model is the reasoning engine. The loop determines how effectively that intelligence gets applied.
 
 Model is the engine. Loop makes it drive.
 
-The primitives exist. Models are capable. MCP and function calling matured.
+The primitives exist. Models are capable. MCP and function calling matured. An ecosystem is forming around these ideas.
 
 Objects in the mirror are closer than they appear.
 
