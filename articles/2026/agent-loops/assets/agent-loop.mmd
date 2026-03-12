@@ -1,0 +1,21 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'primaryBorderColor': '#2E6BA6', 'lineColor': '#333', 'secondaryColor': '#F5A623', 'tertiaryColor': '#7ED321', 'background': '#FAFAFA', 'fontSize': '16px'}}}%%
+flowchart TD
+    A["📥 REQUEST\nfrom User"] --> B["🔍 UNDERSTAND CONTEXT\nRead files, docs,\nsystem state"]
+    B --> C["📋 PLAN\nBreak into tasks\nIdentify tools"]
+    C --> D["⚡ EXECUTE\nRun commands\nCall APIs\nUse MCP tools"]
+    D --> E["👁️ OBSERVE\nCheck output\nAnalyze logs"]
+    E --> F{"✅ SUCCESS?"}
+    F -- YES --> G["📤 REPORT COMPLETE\nReturn to user"]
+    F -- NO --> H["🔎 ANALYZE FAILURE\nWhat went wrong?"]
+    H --> I["🔧 FIX & RETRY\nAdjust approach\nTry alternative"]
+    I --> D
+
+    style A fill:#4A90D9,stroke:#2E6BA6,color:#fff
+    style B fill:#6B8DD6,stroke:#4A6FA5,color:#fff
+    style C fill:#6B8DD6,stroke:#4A6FA5,color:#fff
+    style D fill:#F5A623,stroke:#D4891A,color:#fff
+    style E fill:#6B8DD6,stroke:#4A6FA5,color:#fff
+    style F fill:#E8E8E8,stroke:#999,color:#333
+    style G fill:#7ED321,stroke:#5CA318,color:#fff
+    style H fill:#D0021B,stroke:#A30216,color:#fff
+    style I fill:#F5A623,stroke:#D4891A,color:#fff

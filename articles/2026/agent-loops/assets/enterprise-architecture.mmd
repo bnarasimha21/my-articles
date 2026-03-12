@@ -1,0 +1,41 @@
+%%{init: {'theme': 'base', 'themeVariables': {'primaryColor': '#4A90D9', 'primaryTextColor': '#fff', 'primaryBorderColor': '#2E6BA6', 'lineColor': '#333', 'fontSize': '16px'}}}%%
+flowchart TD
+    U["👤 USER REQUEST"] --> O
+
+    subgraph ORCH["ORCHESTRATOR AGENT"]
+        O["🧠 Context-Aware, Intent-Understanding"]
+    end
+
+    O --> S1 & S2 & S3
+
+    subgraph AGENTS[" "]
+        direction LR
+        S1["🗄️ Sub-Agent 1\nDatabase Queries"]
+        S2["🌐 Sub-Agent 2\nExternal APIs"]
+        S3["⚙️ Sub-Agent 3\nInternal Actions"]
+    end
+
+    S1 & S2 & S3 --> TOOLBOX
+
+    subgraph TOOLBOX["ENTERPRISE TOOLS"]
+        direction LR
+        T1["CRM"] ~~~ T2["ERP"] ~~~ T3["Tickets"] ~~~ T4["Email"]
+        T5["KB"] ~~~ T6["API"] ~~~ T7["Calendar"] ~~~ T8["Slack"]
+    end
+
+    style U fill:#4A90D9,stroke:#2E6BA6,color:#fff
+    style O fill:#F5A623,stroke:#D4891A,color:#fff
+    style ORCH fill:#FFF3D6,stroke:#F5A623
+    style S1 fill:#6B8DD6,stroke:#4A6FA5,color:#fff
+    style S2 fill:#6B8DD6,stroke:#4A6FA5,color:#fff
+    style S3 fill:#6B8DD6,stroke:#4A6FA5,color:#fff
+    style AGENTS fill:none,stroke:none
+    style TOOLBOX fill:#E8F8E0,stroke:#7ED321
+    style T1 fill:#7ED321,stroke:#5CA318,color:#fff
+    style T2 fill:#7ED321,stroke:#5CA318,color:#fff
+    style T3 fill:#7ED321,stroke:#5CA318,color:#fff
+    style T4 fill:#7ED321,stroke:#5CA318,color:#fff
+    style T5 fill:#7ED321,stroke:#5CA318,color:#fff
+    style T6 fill:#7ED321,stroke:#5CA318,color:#fff
+    style T7 fill:#7ED321,stroke:#5CA318,color:#fff
+    style T8 fill:#7ED321,stroke:#5CA318,color:#fff
