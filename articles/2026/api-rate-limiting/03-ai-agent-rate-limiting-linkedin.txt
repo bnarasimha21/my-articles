@@ -1,0 +1,77 @@
+I Got Locked Out of My Own GitHub. An AI Agent Did It.
+
+I was using Claude Code to clean up my GitHub repositories. Updating descriptions, batch-organizing things I had been putting off for months. Perfect job for an AI agent.
+
+It was glorious. In minutes, the agent swept through dozens of repos. Reading metadata. Updating descriptions. Pushing changes. Work that would have taken an afternoon was done before my coffee got cold.
+
+Then I asked it to list all my repositories.
+
+Access denied.
+
+GitHub's API gateway flagged my activity. Dozens of rapid-fire API calls in quick succession, and suddenly I looked like an attacker. Legitimate, authenticated, paid-account usage. Indistinguishable from a DDoS attack.
+
+Got access back after a short cooldown. No lasting damage.
+
+The infrastructure protecting APIs was designed for a world where humans were the primary consumers. That world is ending.
+
+—
+
+⚡ Why Agents Break Rate Limiting
+
+Traditional rate limiting: fixed requests per minute, applied uniformly, excess gets throttled. Works for humans. Developers make a few calls per page load. Mobile apps sync in small intervals. Steady and predictable.
+
+AI agents do not work like that.
+
+When an agent decides to "clean up all repositories," it does not pace itself. It identifies every repo, evaluates each one, fires off API calls in rapid succession. Not malicious. Just efficient.
+
+To an API gateway, "efficient" and "attack" look identical.
+
+The uncomfortable part: attackers are using AI to look more human-like. Legitimate AI agents generate traffic that looks more bot-like. The signals are inverting.
+
+A human makes 50 API calls in an hour.
+
+An AI agent doing the same work makes 500 in five minutes.
+
+Same total work. Completely different traffic pattern. Exactly what rate limiters flag.
+
+—
+
+🎯 Three Actors, One Rate Limiter
+
+This is a classification problem with three actors that are increasingly hard to tell apart:
+
+→ Humans: Predictable, slow, session-based. What rate limiters were designed for.
+→ Legitimate AI Agents: Fast, bursty, authenticated. Traffic patterns that resemble attacks.
+→ Malicious Bots: Using AI to mimic legitimate traffic. Some now mimic agent-like patterns to hide among legitimate agent traffic.
+
+Traditional rate limiting treats this as binary. Within limits or not. The harder question: who is making these calls, why, and should we allow this specific burst?
+
+The industry is starting to respond. Adaptive rate limiting that considers your history before blocking you. Agent identity protocols that give agents their own authentication class. Intent-aware gateways that evaluate what requests are doing, not just how many.
+
+The direction is right. Most APIs have not caught up yet.
+
+—
+
+🛠️ If You Are Building APIs
+
+→ Create separate rate limit tiers for agent traffic. Higher burst limits, same total quota.
+→ Implement transparent rate limit headers (X-RateLimit-Remaining, X-RateLimit-Reset) so agents can self-regulate.
+→ Design for burst, not just throughput. Sliding window beats fixed window. Token bucket is even better.
+→ Distinguish between read and write operations. Reading 100 repos is very different from writing to 100 repos.
+→ Log agent actions separately. When something breaks, you need to know if a human or an agent caused it.
+
+—
+
+🌍 The Bigger Picture
+
+We are moving from APIs serving humans through apps to APIs serving agents on behalf of humans. The infrastructure we built over 15 years was designed for the first world.
+
+The second world needs different infrastructure. Not just higher limits. Fundamentally different approaches to identity, intent, and trust.
+
+Imagine an AI agent managing a production deployment or orchestrating a financial transaction, and getting rate-limited mid-operation because the gateway could not tell it apart from an attack.
+
+That is not an edge case anymore. That is Tuesday in 2026.
+
+—
+
+#AIAgents #APISecurity #RateLimiting #APIs #ArtificialIntelligence

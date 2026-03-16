@@ -28,6 +28,16 @@
       "tags": ["ai-agents", "security", "prompt-injection", "openclaw"],
       "source": "linkedin",
       "path": "articles/2026/prompt-injection/02-prompt-injection-in-ai-skills.md"
+    },
+    {
+      "slug": "03-ai-agent-rate-limiting",
+      "title": "I Got Locked Out of My Own GitHub. An AI Agent Did It.",
+      "date": "2026-03-16",
+      "year": 2026,
+      "status": "draft",
+      "tags": ["ai-agents", "api", "rate-limiting", "infrastructure", "security"],
+      "source": "linkedin",
+      "path": "articles/2026/api-rate-limiting/03-ai-agent-rate-limiting.md"
     }
   ]
 }
