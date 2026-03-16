@@ -1,0 +1,9 @@
+I got locked out of my own GitHub. An AI agent did it.
+
+I used Claude Code to clean up my repositories. It swept through dozens of repos in minutes. Then GitHub's API gateway flagged me as an attacker.
+
+A human makes 50 API calls in an hour. An AI agent makes 500 in five minutes. To a rate limiter, efficient and attack look identical.
+
+I wrote about why this is happening and what to do about it.
+
+#AIAgents #APISecurity #RateLimiting
