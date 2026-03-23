@@ -38,6 +38,16 @@
       "tags": ["ai-agents", "api", "rate-limiting", "infrastructure", "security"],
       "source": "linkedin",
       "path": "articles/2026/api-rate-limiting/03-ai-agent-rate-limiting.md"
+    },
+    {
+      "slug": "04-dynamic-multi-agent-pattern",
+      "title": "Let the Model Decide: From Fixed Pipelines to Dynamic Agent Orchestration",
+      "date": "2026-03-23",
+      "year": 2026,
+      "status": "draft",
+      "tags": ["ai-agents", "multi-agent", "parallel-execution", "architecture", "mapreduce"],
+      "source": "linkedin",
+      "path": "articles/2026/multiagent-travelplanner/04-dynamic-multi-agent-pattern.md"
     }
   ]
 }

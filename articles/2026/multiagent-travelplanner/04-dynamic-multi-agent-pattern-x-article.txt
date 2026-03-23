@@ -1,0 +1,77 @@
+Let the Model Decide: From Fixed Pipelines to Dynamic Agent Orchestration
+
+I built a travel planner with four hardcoded AI agents. Flights, hotels, restaurants, attractions. Every query ran through all four.
+
+Someone asked about the weather in Bali. The system searched for flights, found hotels, recommended restaurants. For a weather question.
+
+Then someone asked about a two-week trip to Japan with elderly parents and wheelchair accessibility. The same four agents tried to cover everything. No one researched accessibility. No one looked into rail passes.
+
+I threw out the fixed pipeline.
+
+
+What changed
+
+No fixed set of agents. One orchestrator reads the query, decides what tasks are needed, spins them up on the fly.
+
+Weekend beach trip. 4 tasks.
+Two-week international family vacation. 10 tasks.
+The system matches its effort to the problem.
+
+The planning logic is a prompt. Not a class hierarchy. A paragraph of English that tells the model how to decompose queries into independent parallel tasks.
+
+
+Running everything at once
+
+All tasks run in parallel. asyncio.gather. That is the whole engine.
+
+6 agents, 2-4 seconds each. Parallel finishes in about 4 seconds. Sequential would take 15-20. Real world is lower because of rate limits and concurrency caps. Cost scales linearly. Ten agents, ten times the tokens.
+
+What keeps cost down: powerful model for decomposition and aggregation, fast cheap model for individual agents. The orchestrator thinks carefully. The agents just research and return data.
+
+
+Putting it back together
+
+Independent agents produce independent results. The aggregator stitches them into a coherent itinerary.
+
+This is harder than it sounds. Agents return conflicting recommendations. Assumptions about dates do not line up. The aggregator is doing synthesis, not concatenation. I learned the hard way that the aggregation prompt needs as much care as the decomposition prompt.
+
+
+Prompt plans, code catches failures
+
+The decomposition prompt is the blueprint. Swap it and the same code becomes a research assistant or document review system.
+
+But the prompt only handles the happy path. Reliability lives in code. Schema validation. Retries. Timeouts. Cost guardrails.
+
+The prompt decides what to do. The code decides what to do when things go wrong.
+
+
+The fragile part
+
+Everything depends on one LLM call. The decomposition.
+
+I have seen it create duplicate tasks. Skip visa research for international trips. Spawn 12 agents when 3 would do.
+
+Production systems need a validation step before execution, a task count ceiling, partial failure handling, and quality tracking over time. There is no single correct decomposition. Track coverage, redundancy, and user satisfaction.
+
+
+Breadth vs depth
+
+More agents cover more ground but each gets a single pass. No iteration. No refinement.
+
+Fan-out trades depth for breadth and speed. Right trade for travel planning. Wrong trade for medical diagnosis.
+
+
+Where it fits
+
+Query complexity varies widely. Tasks are naturally independent. Users are waiting.
+
+Where it does not. Tasks have dependencies. Quality requires iteration. Domain is narrow enough that the same steps always apply.
+
+
+What I took away
+
+I started with four hardcoded agents because it was simple. It worked until it did not.
+
+Dynamic decomposition solved that. Three phases. Decompose, execute in parallel, aggregate. The model handles the hard part. The code handles everything else.
+
+The question is not how many agents you need. It is who should be deciding that.
