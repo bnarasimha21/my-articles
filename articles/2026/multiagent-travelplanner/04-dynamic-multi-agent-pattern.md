@@ -1,6 +1,8 @@
 # Let the Model Decide: From Fixed Pipelines to Dynamic Agent Orchestration
 
-I was building a travel planner with multiple AI agents. The first version had four of them hardcoded: flights, hotels, restaurants, attractions. Every query ran through all four, every time.
+![Cover image](linkedin-cover.png)
+
+A few months ago, I built a travel planner the obvious way. One agent for flights. One for hotels. One for restaurants. One for attractions. Four agents, hardcoded, running on every single query.
 
 One of the queries was "What's the weather in Bali next week?" and the system dutifully searched for flights, found hotels, recommended restaurants, and listed tourist spots. For a weather question. It took 15 seconds and cost me tokens I did not need to spend.
 
@@ -9,9 +11,9 @@ Then another query came in about a two-week trip to Japan with elderly parents, 
 That is when I started rethinking the fixed pipeline. Instead of deciding upfront what agents to run, I let the model figure it out.
 
 
-## What I Changed
+## From Fixed to Dynamic
 
-The new version has no fixed set of agents. There is one orchestrator that reads the user's query, decides what research tasks are actually needed, and spins them up on the fly. A weekend beach trip gets 4 tasks. A complex international family vacation gets 10. The system matches its effort to the problem.
+In dynamic orchestration, there is no fixed set of agents. There is one orchestrator that reads the user's query, decides what research tasks are actually needed, and spins them up on the fly. A weekend beach trip gets 4 tasks. A complex international family vacation gets 10. The system matches its effort to the problem.
 
 Here is the prompt that makes this work:
 
@@ -76,7 +78,7 @@ async def _run_agents_parallel(self, tasks: list[dict]) -> list[dict]:
 
 `asyncio.gather` fires all tasks at the same time and waits for them to finish. That is the whole engine.
 
-The system tracks timing on both sides:
+We can track timing on both sides:
 
 ```python
 sequential_time_ms = sum(r["execution_time_ms"] for r in agent_results)
@@ -86,7 +88,7 @@ speedup_factor = round(sequential_time_ms / max(parallel_time_ms, 1), 2)
 
 With 6 agents each taking 2-4 seconds, parallel execution finishes in about 4 seconds. Running them one at a time would take 15-20. That is a 4-5x improvement under good conditions.
 
-The real number will be lower. API rate limits throttle concurrent requests. Providers cap how many calls you can make at once. Cost scales linearly. Ten agents means ten times the tokens. The speedup is real, but you pay for it.
+The real number will be lower. API rate limits throttle concurrent requests. Providers cap how many calls you can make at once. The token cost is the same whether you run agents in parallel or sequentially. But parallel execution dramatically cuts the time your user is waiting. That is the real win.
 
 One decision that keeps cost in check: use a powerful model for decomposition and aggregation, a fast cheap model for the individual agents. The orchestrator needs to think carefully about what tasks to create. The agents just need to research a topic and return structured data. I use GPT-4o or Claude Sonnet for the orchestrator, GPT-4o-mini or Claude Haiku for the agents. The per-agent cost stays low even when the count goes up.
 
@@ -106,7 +108,7 @@ Create a well-organized itinerary that:
 3. Highlights the best recommendations from each research area
 ```
 
-This is harder than it sounds. Agents return conflicting recommendations. One suggests a restaurant in Gracia while another plans your evening in Barceloneta. Assumptions about dates do not always line up. The aggregator is doing synthesis, not concatenation. And it can get it wrong. It has to make judgment calls, and sometimes it makes bad ones. It took a few bad itineraries before I realized the aggregation prompt needs as much care as the decomposition prompt.
+This is harder than it sounds. Agents return conflicting recommendations. One suggests a restaurant downtown while another plans your evening at the beach. Assumptions about dates do not always line up. The aggregator is doing synthesis, not concatenation. And it can get it wrong. It has to make judgment calls, and sometimes it makes bad ones. It took a few bad itineraries before I realized the aggregation prompt needs as much care as the decomposition prompt.
 
 The full flow looks like this:
 
@@ -117,7 +119,7 @@ Total wait time: decompose + slowest agent + aggregate. Not decompose + every ag
 
 ## The Prompt Is the Architecture (But Not All of It)
 
-The decomposition prompt is what makes this a travel planner. Swap it out and the same Python code becomes a research assistant, a competitive analysis tool, or a document review system. The code is plumbing. The prompt is the blueprint.
+The decomposition prompt is what makes this a travel planner. Swap it out and the same Python code becomes a research assistant, a competitive analysis tool, or a document review system. **The code is plumbing. The prompt is the blueprint.**
 
 But the prompt only handles the happy path. Reliability lives in code. JSON schema validation. Retry logic. Timeout handling. Cost guardrails. Handling garbage agent responses. Catching hallucinated task categories.
 
@@ -128,13 +130,18 @@ A one-line prompt change can completely alter what agents get spawned. I treat p
 
 ## Where This Works and Where It Does Not
 
-This pattern fits when query complexity varies widely. When some queries need 3 tasks and others need 12. When the tasks are naturally independent and users are waiting for a response.
+This pattern fits when:
 
-It does not fit everywhere.
+- Query complexity varies widely, where some queries need 3 tasks and others need 12.
+- The tasks are naturally independent.
+- Users are waiting for a response.
 
-If tasks have dependencies, where one agent needs another's output before it can start, you cannot parallelize them. You need a different pattern. If quality requires agents to review and refine each other's work, a single parallel pass will not cut it. If your domain is narrow and every query needs the exact same three steps, just hardcode three agents. The overhead of dynamic decomposition is not worth it for a problem that does not change shape.
+It does not fit everywhere:
 
-There is also a breadth-versus-depth tradeoff. More agents cover more ground, but each one gets a single pass. No iteration, no "go deeper on this." A hotel agent that searches, reads reviews, checks availability, and refines its pick through several rounds will beat one that returns its first result. Fan-out trades depth for breadth and speed. That is the right trade for travel planning. It is the wrong trade for medical diagnosis or financial modeling.
+- **Tasks have dependencies.** If one agent needs another's output before it can start, you cannot parallelize them. You need a different pattern.
+- **Quality requires iteration.** If agents need to review and refine each other's work, a single parallel pass wont be enough.
+- **Your domain is narrow.** If every query needs the exact same three steps, just hardcode three agents. The overhead of dynamic decomposition is not worth it for a problem that does not change shape.
+- **You need depth over breadth.** More agents cover more ground, but each one gets a single pass. No iteration, no "go deeper on this." A hotel agent that searches, reads reviews, checks availability, and refines its pick through several rounds will beat one that returns its first result. Fan-out trades depth for breadth and speed. That is the right trade for travel planning. It is the wrong trade for medical diagnosis or financial modeling.
 
 
 ## The Fragile Part
@@ -145,15 +152,12 @@ If that call produces overlapping tasks, the agents waste time on duplicate work
 
 I have seen all three. The decomposer created both "Restaurant Research" and "Food & Dining Guide" for the same query. It skipped visa research for an international trip. It spawned 12 agents for a question that needed 3.
 
-For a production system, I would add four things.
+For a production system, I would add four things:
 
-**A validation step before execution.** Check the plan for coverage and redundancy. This can be a second LLM call or a rule-based check. Catch bad decompositions before they multiply.
-
-**A task count ceiling.** Without a cap, a vague query like "plan the perfect vacation" can go wild. Set a maximum, maybe 8 or 10, and force the decomposer to prioritize.
-
-**Partial failure handling.** If one agent out of eight fails, you should still get the other seven results. Use `asyncio.gather(*tasks, return_exceptions=True)` and let the aggregator work with what it has.
-
-**Quality tracking over time.** There is no single "correct" decomposition for a given query, which makes evaluation tricky. You cannot just diff against an expected output. So track what you can: task coverage, task redundancy, downstream user satisfaction. Build an evaluation set of representative queries and run it against prompt changes before you deploy them. Without this, you are flying blind on the most critical part of the system.
+1. **A validation step before execution.** Check the plan for coverage and redundancy. This can be a second LLM call or a rule-based check. Catch bad decompositions before they multiply.
+2. **A task count ceiling.** Without a cap, a vague query like "plan the perfect vacation" can go wild. Set a maximum, maybe 8 or 10, and force the decomposer to prioritize.
+3. **Partial failure handling.** If one agent out of eight fails, you should still get the other seven results. Use `asyncio.gather(*tasks, return_exceptions=True)` and let the aggregator work with what it has.
+4. **Quality tracking over time.** There is no single "correct" decomposition for a given query, which makes evaluation tricky. You cannot just diff against an expected output. So track what you can: task coverage, task redundancy, downstream user satisfaction. Build an evaluation set of representative queries and run it against prompt changes before you deploy them. Without this, you are flying blind on the most critical part of the system.
 
 
 ## What Comes Next
@@ -162,6 +166,11 @@ This is not a replacement for static pipelines. Plenty of systems do fine with f
 
 But the interesting direction is what happens when you push this pattern further. Staged decomposition, where the second wave of agents builds on the first wave's results. Agents that can request more agents mid-execution. Decomposition that learns from past queries and improves over time without prompt changes.
 
-The gap right now is tooling. There is no good way to debug a dynamic decomposition. No standard way to evaluate whether a plan was good. No dashboard that shows you "this query spawned 8 agents, 2 were redundant, here is why." The pattern works. The observability around it does not exist yet.
+The tooling landscape is moving quickly. Agent tracing and observability platforms already exist. But decomposition quality, knowing whether the plan itself was good, is still something we need to actively measure and improve. That is where our focus should be.
 
-**The question is not how many agents you need. It is who should be deciding that.** I stopped deciding. The model is better at it than I was.
+**The question is not how many agents you need. It is whether the problem changes shape from query to query. If it does, stop hardcoding the answer. Let the model decide.**
+
+## Try It Yourself
+
+- **Live App:** [narasimha-badrinath.com/multiagent-travelplanner](https://narasimha-badrinath.com/multiagent-travelplanner/)
+- **Source Code:** [github.com/bnarasimha21/multiagent-travelplanner](https://github.com/bnarasimha21/multiagent-travelplanner)
