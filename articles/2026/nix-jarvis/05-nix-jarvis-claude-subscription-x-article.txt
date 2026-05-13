@@ -1,0 +1,89 @@
+Nix and Jarvis: How I Built My Personal AI Around One Claude Subscription
+
+I wanted an AI assistant that is genuinely always-on.
+
+Not a chat window I open. Something I can ping from anywhere that already knows what I am working on.
+
+Wire it to the API and pay per token. That works for an hour. It does not work for a real always-on setup. The token bill becomes the bottleneck before the assistant becomes useful.
+
+So I built mine on top of one Claude subscription. Two assistants, one flat monthly cost.
+
+
+What I have
+
+Nix lives on my phone. When I message my Telegram bot, Nix replies. It runs as a Claude Code session in tmux on my Mac Mini, kept alive by a Launch Agent.
+
+Jarvis lives on my Mac. A small web dashboard with a floating mic orb. I say "Hey Jarvis", it listens, answers in voice, shows the response in a chat panel.
+
+Two interfaces. Same underlying engine. Different jobs.
+
+
+The trick
+
+Most personal AI setups force a choice. Use the API and pay per million tokens. Or use the chat app and accept it is not callable from code.
+
+There is a third path. Claude Code is a CLI. Its non-interactive mode runs a prompt and returns a result. The CLI authenticates against the Claude subscription.
+
+That means I can call Claude from any script, any background process, any bot. The cost is flat.
+
+Nix is a Claude Code session that never quits. Jarvis spawns a subprocess when it needs heavy lifting. Both routes ride the subscription.
+
+
+How it splits
+
+Voice replies use the Anthropic API directly. Speed matters when you are mid-sentence. A short reply is cheap.
+
+Heavy tasks get delegated to the subscription subprocess. "Draft a CV from this posting." "Go fix that bug." Anything that would otherwise burn API credits.
+
+Voice feels snappy. Background work runs without a meter.
+
+
+What makes it work
+
+Three pieces.
+
+Persistence. A session has to stay alive between messages. tmux plus a Launch Agent.
+
+Memory. SQLite chat log for short term. Markdown files the model reads on session start for long term.
+
+A personal knowledge base. A tool that ingests my Telegram chats and GitHub repos every ten minutes into a vector database. A prompt hook injects the most relevant past context before the model sees the question.
+
+End result. The assistant can answer "what did we decide about project X last week" without me hunting for the chat.
+
+
+What it costs
+
+The flat Claude subscription is the only Claude-side cost.
+
+A tiny OpenAI text-to-speech bill for the voice. Less than a dollar a month for short voice replies via API. A cheap droplet for the other agents.
+
+Two AI personalities cost less per month than running a single chat app via API would.
+
+
+What it is not
+
+Not a magical unlimited setup. Claude Code has its own rate limits per tier. For one person with a phone and a laptop, the headroom is large. For a hundred concurrent tasks it would not be.
+
+Not isolated from Claude's terms either. The subscription is for personal Claude Code usage. Not reselling. Not proxying. Not public. The distinction matters.
+
+
+Why it matters
+
+Most people assume running a personal AI 24/7 means paying through the nose for tokens. The default mental model pushes you to "only when I have a specific question."
+
+A subscription-powered setup flips it. The assistant runs all the time. Watches my work. Holds context across sessions. Does not penalise me for using it more.
+
+The leverage is in removing the token-counter from my head.
+
+
+Where to start
+
+You do not need both pieces on day one.
+
+Get Claude Code installed. Run a few non-interactive prompts. The CLI is the gateway, not the chat UI.
+
+Pick one interface you already live in. Wire it to a subscription-priced call. You now have an always-on assistant.
+
+Add memory. A folder of Markdown files the assistant reads on start. A logger that captures the conversation.
+
+Voice and dashboards are nice-to-haves. The first two steps are the unlock.

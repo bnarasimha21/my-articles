@@ -48,6 +48,16 @@
       "tags": ["ai-agents", "multi-agent", "parallel-execution", "architecture", "mapreduce"],
       "source": "linkedin",
       "path": "articles/2026/multiagent-travelplanner/04-dynamic-multi-agent-pattern.md"
+    },
+    {
+      "slug": "05-nix-jarvis-claude-subscription",
+      "title": "Nix and Jarvis: How I Built My Personal AI Around One Claude Subscription",
+      "date": "2026-05-13",
+      "year": 2026,
+      "status": "draft",
+      "tags": ["claude-code", "personal-ai", "telegram", "voice", "automation", "subscription"],
+      "source": "linkedin",
+      "path": "articles/2026/nix-jarvis/05-nix-jarvis-claude-subscription.md"
     }
   ]
 }
