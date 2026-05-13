@@ -69,6 +69,12 @@ When I ping Nix from Telegram on the train, and later ask Jarvis at my desk "wha
 
 That is the part that makes the setup feel less like two chat apps and more like one continuous assistant with two front doors.
 
+Fair question to ask at this point: if they share everything underneath, why two names at all? Why not just call both of them Jarvis, or both of them Nix?
+
+The answer is that the names reflect *posture*, not implementation. Jarvis is the voice agent. The desk companion. Short questions, instant answers, conversational. Nix is the operator. The one I delegate to. Write this article, ship that code, summarise this long thread. Different expectations of how I work with each one, even though the engine and the memory underneath are the same.
+
+The shared files let them hand off to each other invisibly. The names keep the modes distinct in my head. When I open Slack and start typing, I am asking Nix. When I press the mic orb on my Mac, I am asking Jarvis. The naming is a contract with myself about what kind of help I am about to ask for.
+
 ---
 
 ## What makes this work in practice

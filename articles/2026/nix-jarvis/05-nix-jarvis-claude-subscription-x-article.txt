@@ -49,6 +49,21 @@ Ping Nix from Telegram on the train. Ask Jarvis at my desk an hour later. Jarvis
 One me written down on disk. Any surface picks up where the last left off.
 
 
+Why two names then
+
+If they share everything, why two names at all. Why not both Jarvis, or both Nix.
+
+The names reflect posture, not implementation.
+
+Jarvis is the voice agent. The desk companion. Short questions, instant answers, conversational.
+
+Nix is the operator. The one I delegate to. Write this article. Ship that code. Summarise this thread.
+
+Different expectations of how I work with each one. The shared engine and memory let them hand off invisibly. The names keep the modes distinct in my head.
+
+A contract with myself about what kind of help I am about to ask for.
+
+
 What makes it work
 
 Three pieces.
