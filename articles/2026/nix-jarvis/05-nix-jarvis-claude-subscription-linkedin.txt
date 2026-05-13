@@ -12,11 +12,11 @@ So I built mine on top of a single Claude subscription. Two assistants, one flat
 
 Two assistants, two different interfaces, sharing one brain.
 
-Nix lives on my phone. When I message my Telegram bot, Nix replies. It runs as a Claude Code session inside a tmux window on my Mac Mini, kept alive by a Launch Agent.
+Nix lives on my phone. When I message my Telegram bot, Nix replies. It runs as a Claude Code session inside a tmux window on my Mac, kept alive by a Launch Agent.
 
 Jarvis lives on my Mac. It is a small web dashboard with a floating microphone orb. I say "Hey Jarvis", it listens, answers in voice, and shows the response in a chat panel.
 
-Both of them are built on the same underlying engine. They just have different jobs.
+Both of them are built on the same underlying engine, read from the same memory files, and share the same identity. They just have different surfaces.
 
 —
 
@@ -32,11 +32,23 @@ Nix is a Claude Code session that never quits. Jarvis spawns a subprocess when i
 
 🧩 How the two pieces fit together
 
-The split is deliberate. Jarvis's voice replies use the Anthropic API directly because speed matters when you are mid-sentence. A short reply is cheap.
+Nix is one long-running Claude Code session. Each new Telegram message lands in the same tmux pane, with full context already loaded.
 
-Heavy tasks like "draft a tailored CV from this job posting" or "go fix that bug in my repo" get delegated to the subscription-priced subprocess because they would burn through API credits otherwise.
+Jarvis is the opposite shape. Every voice turn spawns a fresh subprocess that runs the prompt, returns the answer, and exits. Session resumption means each turn does not re-pay the system prompt and history.
 
-Voice feels snappy. Background work runs without watching a meter.
+Both routes ride the same Claude subscription. No API key sitting on the side. No per-token meter. The difference is session shape, not billing.
+
+Voice feels snappy. Background work runs without a meter to watch.
+
+—
+
+🧠 One brain, two surfaces
+
+The deeper trick is not the subscription. It is that Nix and Jarvis read from the same memory files, the same identity, the same project state, the same logged conversations.
+
+When I ping Nix from Telegram on the train, and later ask Jarvis at my desk "what was that thing we just talked about", Jarvis already knows. Not because the two are talking to each other, but because they are both reading the same files.
+
+One "me" written down on disk. Any surface I open picks up where the last one left off.
 
 —
 
@@ -50,7 +62,7 @@ Three pieces that took longer than I expected.
 
 → A personal knowledge base. I built a small tool that ingests my Telegram chats and GitHub repos every ten minutes into a vector database. A prompt hook adds the most relevant past snippets to context before the model sees the question.
 
-The combined effect is that the assistant can answer "what did we decide about project X last week?" without me having to find the chat.
+The combined effect is that the assistant can answer "what did we decide about that project last week?" without me having to find the chat.
 
 —
 
@@ -60,10 +72,9 @@ The flat Claude subscription is the only Claude-side cost.
 
 Outside that I pay for:
 → A tiny OpenAI text-to-speech bill for Jarvis's voice
-→ Less than a dollar a month for short voice replies via API
 → A cheap droplet for other agents I run separately
 
-Two AI personalities cost me less per month than running a single chat app via API would.
+That is it. No per-token meter. No surprise bill at month-end.
 
 —
 

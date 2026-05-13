@@ -11,11 +11,11 @@ So I built mine on top of one Claude subscription. Two assistants, one flat mont
 
 What I have
 
-Nix lives on my phone. When I message my Telegram bot, Nix replies. It runs as a Claude Code session in tmux on my Mac Mini, kept alive by a Launch Agent.
+Nix lives on my phone. When I message my Telegram bot, Nix replies. It runs as a Claude Code session in tmux on my Mac, kept alive by a Launch Agent.
 
 Jarvis lives on my Mac. A small web dashboard with a floating mic orb. I say "Hey Jarvis", it listens, answers in voice, shows the response in a chat panel.
 
-Two interfaces. Same underlying engine. Different jobs.
+Two interfaces. Same engine. Same memory files. Same identity. Different surfaces.
 
 
 The trick
@@ -31,11 +31,22 @@ Nix is a Claude Code session that never quits. Jarvis spawns a subprocess when i
 
 How it splits
 
-Voice replies use the Anthropic API directly. Speed matters when you are mid-sentence. A short reply is cheap.
+Nix is one long-running Claude Code session. Each new Telegram message lands in the same tmux pane with full context already loaded.
 
-Heavy tasks get delegated to the subscription subprocess. "Draft a CV from this posting." "Go fix that bug." Anything that would otherwise burn API credits.
+Jarvis is the opposite shape. Every voice turn spawns a fresh subprocess that runs the prompt, returns the answer, and exits. Session resumption means each turn does not re-pay the system prompt and history.
+
+Both routes ride the same Claude subscription. No API key on the side. No per-token meter.
 
 Voice feels snappy. Background work runs without a meter.
+
+
+One brain, two surfaces
+
+The deeper trick is not the subscription. It is that Nix and Jarvis read from the same memory files. Same identity. Same project state. Same logged conversations.
+
+Ping Nix from Telegram on the train. Ask Jarvis at my desk an hour later. Jarvis already knows what we talked about. Not because the two are talking to each other. Because they are both reading the same files.
+
+One me written down on disk. Any surface picks up where the last left off.
 
 
 What makes it work
@@ -48,16 +59,16 @@ Memory. SQLite chat log for short term. Markdown files the model reads on sessio
 
 A personal knowledge base. A tool that ingests my Telegram chats and GitHub repos every ten minutes into a vector database. A prompt hook injects the most relevant past context before the model sees the question.
 
-End result. The assistant can answer "what did we decide about project X last week" without me hunting for the chat.
+End result. The assistant can answer "what did we decide about that project last week" without me hunting for the chat.
 
 
 What it costs
 
 The flat Claude subscription is the only Claude-side cost.
 
-A tiny OpenAI text-to-speech bill for the voice. Less than a dollar a month for short voice replies via API. A cheap droplet for the other agents.
+A tiny OpenAI text-to-speech bill for the voice. A cheap droplet for the other agents.
 
-Two AI personalities cost less per month than running a single chat app via API would.
+That is it. No per-token meter. No surprise bill at month-end.
 
 
 What it is not
