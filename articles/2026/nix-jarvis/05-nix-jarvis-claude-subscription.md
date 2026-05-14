@@ -120,7 +120,7 @@ The flat Claude subscription is the only Claude-side cost.
 
 Outside that, I pay for:
 
-→ OpenAI's text-to-speech for Nix's voice replies, a few cents per long session
+→ Google's text-to-speech for Nix's voice replies — free up to 1 million characters a month, which covers everything I throw at it day to day
 → A cheap DigitalOcean droplet that hosts other agents I run separately
 
 That is it. No per-token meter. No surprise bill at month-end. The trade is that I had to build the plumbing once. It was a long Saturday.
@@ -164,5 +164,9 @@ Voice and dashboards are nice-to-haves. The first two steps are the unlock.
 ---
 
 *If you want the technical details on any one piece (the tmux + LaunchAgent setup, the Telegram bot, the memory pattern, the voice surface), let me know in the comments and I will write that one up next.*
+
+---
+
+Tony Stark never asked Jarvis if the question was worth a token. Now neither do I.
 
 #ai #claude #personalassistant #automation #buildinpublic
