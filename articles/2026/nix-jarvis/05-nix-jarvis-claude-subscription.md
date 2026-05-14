@@ -1,4 +1,4 @@
-# Nix and Jarvis: How I Built My Personal AI Around One Claude Subscription
+# Nix: How I Built My Personal AI Around One Claude Subscription
 
 *Published: May 13, 2026*
 
@@ -88,21 +88,17 @@ Drop the plist in `~/Library/LaunchAgents`, `launchctl bootstrap` it, done. The 
 
 The phone half is a small bun server that talks to the Telegram Bot API. Inbound messages get piped to the tmux session. Outbound replies go back to Telegram. About a hundred lines of code.
 
-The Mac half is a web dashboard at `localhost:3737` with a floating microphone orb. The wake word is "Hey Jarvis". I press it, talk, the browser does speech-to-text in the page, sends the text to a local endpoint that runs a fresh `claude -p` subprocess, and the response comes back as text plus voice. The voice surface has its own callable persona — Jarvis — but the engine underneath is the same Nix.
+The Mac half is a web dashboard at `localhost:3737` with a floating microphone orb. The wake word is "Hey Nix". I press it, talk, the browser does speech-to-text in the page, sends the text to a local endpoint that runs a fresh `claude -p` subprocess, and the response comes back as text plus voice.
 
-If they share everything underneath, why two names at all? Why not just call both of them Nix, or both of them Jarvis?
-
-The names reflect *posture*, not implementation. Jarvis is the voice agent. The desk companion. Short questions, instant answers, conversational. Nix is the operator. The one I delegate to. Write this article, ship that code, summarise this long thread. Different expectations of how I work with each one, even though the engine and the memory underneath are the same.
-
-The shared files let them hand off to each other invisibly. The names keep the modes distinct in my head. The naming is a contract with myself about what kind of help I am about to ask for.
+Different surfaces, different interaction styles — but the same Nix, the same engine, the same memory underneath.
 
 ---
 
 ## One brain, two surfaces
 
-The deeper trick is not the subscription. It is that Nix and Jarvis read from the same memory files, the same identity, the same project state, the same logged conversations.
+The deeper trick is not the subscription. It is that Nix reads from the same memory files across every surface — the same identity, the same project state, the same logged conversations.
 
-When I ping Nix from Telegram on the train, and later ask Jarvis at my desk "what was that thing we just talked about", Jarvis already knows. Not because the two are talking to each other. Because they are both reading the same files. There is one "me" written down on disk, and any surface I open picks up exactly where the last one left off.
+When I ping Nix from Telegram on the train, and later open the voice dashboard at my desk an hour later, Nix already knows what we just talked about. Not because the surfaces are talking to each other. Because they are both reading the same files. There is one "me" written down on disk, and any surface I open picks up exactly where the last one left off.
 
 The memory layer is just Markdown files in a known folder, plus a SQLite log of every Telegram message:
 
@@ -124,7 +120,7 @@ The flat Claude subscription is the only Claude-side cost.
 
 Outside that, I pay for:
 
-→ OpenAI's text-to-speech for Jarvis's voice replies, a few cents per long session
+→ OpenAI's text-to-speech for Nix's voice replies, a few cents per long session
 → A cheap DigitalOcean droplet that hosts other agents I run separately
 
 That is it. No per-token meter. No surprise bill at month-end. The trade is that I had to build the plumbing once. It was a long Saturday.

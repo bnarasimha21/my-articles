@@ -1,4 +1,4 @@
-Nix and Jarvis: How I Built My Personal AI Around One Claude Subscription
+Nix: How I Built My Personal AI Around One Claude Subscription
 
 The only difference between us and Tony Stark is that he had unlimited tokens.
 
@@ -54,31 +54,16 @@ Two surfaces
 
 Phone is a small bun server talking to the Telegram Bot API. Pipes messages into the tmux session. Pipes replies back out. A hundred lines of code.
 
-Mac is a web dashboard with a floating mic orb. Wake word "Hey Jarvis". Browser does speech-to-text. Sends text to a local endpoint that runs a subprocess against the same engine.
+Mac is a web dashboard with a floating mic orb. Wake word "Hey Nix". Browser does speech-to-text. Sends text to a local endpoint that runs a subprocess against the same engine.
 
-The voice surface has its own persona, Jarvis. The engine underneath is the same Nix.
-
-
-Why two names then
-
-If they share everything, why two names at all. Why not both Jarvis, or both Nix.
-
-The names reflect posture, not implementation.
-
-Jarvis is the voice agent. The desk companion. Short questions, instant answers.
-
-Nix is the operator. The one I delegate to. Write this article. Ship that code. Summarise this thread.
-
-The shared engine and memory let them hand off invisibly. The names keep the modes distinct in my head.
-
-A contract with myself about what kind of help I am about to ask for.
+Different surfaces, different interaction styles. Same Nix, same engine, same memory underneath.
 
 
 One brain, two surfaces
 
-The deeper trick is not the subscription. It is that Nix and Jarvis read from the same memory files. Same identity. Same project state. Same logged conversations.
+The deeper trick is not the subscription. It is that Nix reads from the same memory files across every surface. Same identity. Same project state. Same logged conversations.
 
-Ping Nix from Telegram on the train. Ask Jarvis at my desk an hour later. Jarvis already knows what we talked about. Not because the two are talking to each other. Because they are reading the same files.
+Ping Nix from Telegram on the train. Open the voice dashboard at my desk an hour later. Nix already knows what we talked about. Because they are reading the same files.
 
 One me written down on disk. Any surface picks up where the last left off.
 

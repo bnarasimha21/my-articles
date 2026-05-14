@@ -1,4 +1,4 @@
-Nix and Jarvis: How I Built My Personal AI Around One Claude Subscription
+Nix: How I Built My Personal AI Around One Claude Subscription
 
 The only difference between us and Tony Stark is that he had unlimited tokens.
 
@@ -58,29 +58,17 @@ Three. A LaunchAgent so it survives reboots. macOS reboots, the Mac sleeps, the 
 
 The phone half is a small bun server that talks to the Telegram Bot API. Inbound messages get piped to the tmux session. Outbound replies go back to Telegram. About a hundred lines of code.
 
-The Mac half is a web dashboard with a floating microphone orb. The wake word is "Hey Jarvis". I press it, talk, the browser does speech-to-text in the page, sends the text to a local endpoint that runs a fresh subprocess against the same engine.
+The Mac half is a web dashboard with a floating microphone orb. The wake word is "Hey Nix". I press it, talk, the browser does speech-to-text in the page, sends the text to a local endpoint that runs a fresh subprocess against the same engine.
 
-The voice surface has its own callable persona — Jarvis — but the engine underneath is the same Nix.
-
-—
-
-🤔 Why two names then
-
-If they share everything underneath, why two names at all? Why not just call both of them Nix, or both of them Jarvis?
-
-The names reflect posture, not implementation. Jarvis is the voice agent. The desk companion. Short questions, instant answers, conversational. Nix is the operator. The one I delegate to. Write this article. Ship that code. Summarise this thread.
-
-Different expectations of how I work with each one. The shared engine and shared memory let them hand off invisibly. The names keep the modes distinct in my head.
-
-The naming is a contract with myself about what kind of help I am about to ask for.
+Different surfaces, different interaction styles. Same Nix, same engine, same memory underneath.
 
 —
 
 🧠 One brain, two surfaces
 
-The deeper trick is not the subscription. It is that Nix and Jarvis read from the same memory files, the same identity, the same project state, the same logged conversations.
+The deeper trick is not the subscription. It is that Nix reads from the same memory files across every surface — the same identity, the same project state, the same logged conversations.
 
-When I ping Nix from Telegram on the train, and later ask Jarvis at my desk "what was that thing we just talked about", Jarvis already knows. Not because the two are talking to each other. Because they are both reading the same files.
+When I ping Nix from Telegram on the train, and later open the voice dashboard at my desk an hour later, Nix already knows. Not because the surfaces are talking to each other. Because they are both reading the same files.
 
 One "me" written down on disk. Any surface I open picks up where the last one left off.
 
