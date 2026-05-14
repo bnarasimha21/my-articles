@@ -4,60 +4,97 @@
 
 ---
 
-I have wanted an AI assistant that is genuinely always-on. Not a chat window I open when I need help, but something I can ping from anywhere and that already knows what I am working on.
+The only difference between us and Tony Stark is that he had unlimited tokens.
 
-The straightforward path is to wire it to an API and pay per token. That works for an hour of usage. It does not work for a real always-on setup. The token bill becomes the bottleneck before the assistant becomes useful.
+Everyone who has watched Iron Man has at some point pictured what it would be like to have a Jarvis. An assistant that is always there, knows everything about you, takes actions on your behalf, talks to you like a person. Today's models can absolutely do that. The thing in the way is not the intelligence. It is the meter ticking every time you use them.
 
-So I built mine on top of a single Claude subscription. Two assistants, one flat monthly cost, no per-token meter running in the background.
-
----
-
-## What I actually have
-
-Two assistants, two different interfaces, sharing one brain.
-
-**Nix** lives on my phone. When I message my Telegram bot, Nix replies. It runs as a Claude Code session inside a tmux window on my Mac, kept alive by a Launch Agent. The session has memory files, my GitHub repos under `~/Documents/MyGitHub`, and a Telegram plugin that streams messages in and out.
-
-**Jarvis** lives on my Mac. It is a small web dashboard at `localhost:3737` with a floating microphone orb. I say "Hey Jarvis", it listens, answers in voice, and shows the response in a chat panel. It can pull up my calendar, search Gmail, summarise GitHub activity, and read out reminders.
-
-Both of them are built on the same underlying engine, read from the same memory files, and share the same identity. They just have different surfaces.
+I have been chipping away at this problem for over a year. What I ended up with is Nix, my personal assistant, running on one Claude subscription. This is how it got there.
 
 ---
 
-## The trick: subscription as the engine
+## A short history of trying
 
-Most personal AI setups have a hard choice baked in. Use the API and pay per million tokens. Or use the chat app and accept that it is not callable from your code.
+I was one of the earliest users of OpenClaw. For a while I had it wired to my Claude subscription, which gave me what felt like the closest thing to Jarvis I had ever used. Then Anthropic announced that the subscription could not be used with third-party agent frameworks. I lost the setup overnight.
 
-There is a third path. Claude Code is a CLI, and `claude -p` is a non-interactive mode that runs a prompt and returns a result. The CLI authenticates against the Claude subscription. That means I can call Claude from any script, any background process, any Telegram bot, any voice agent, and the cost is flat. I pay for the subscription. The CLI is the gateway.
+I switched to Claude Code's own channels plugin system. It needed a lot of plumbing. But it worked. The constraints were what they were, and I could build inside them.
 
-That single observation drives the whole setup.
+So I built Nix.
 
-Nix is a Claude Code session that never quits. Jarvis spawns `claude -p` for every voice turn. Both routes ride the subscription. No API key in the loop.
+Nix is my personal assistant. Voice-first on my Mac, available on my phone over Telegram. It answers questions and it takes actions. Web search, my email, my calendar, scoped folders on my file system, my GitHub. It can create files, edit files, write code, open pull requests. I talk to it the way I would talk to a smart engineer who already knows what I am working on.
+
+The whole thing runs on one Claude subscription. That is the part that makes it sustainable.
 
 ---
 
-## How the two pieces fit together
+## How it is different from other solutions
 
-Picture it like this:
+There are plenty of personal-AI products out there. Here is where Nix lands differently.
 
+→ **Voice-first conversation, not voice notes.** I do not record a message, send it, and wait for a reply. I talk, it answers, we have a conversation. The feedback loop is human.
+
+→ **Claude subscription, no per-token meter.** Not API calls. Not OpenClaw or any other third-party harness. Just the standard Claude subscription doing the work.
+
+→ **Same assistant on mobile and Mac.** Same memory, same identity, same project state. Pinging it from Telegram on the train and asking it at my desk an hour later are continuous, not separate.
+
+→ **Runs on my own Mac.** No vendor's cloud agent in between. The files are mine, the runtime is mine, the credentials never leave.
+
+---
+
+## The technical core
+
+The whole setup turns on three properties: one long-running Claude Code session, tmux to make it survive disconnects, and a LaunchAgent to make it survive reboots.
+
+**One long-running session.** Claude Code can run as a non-interactive command that returns a result. By giving the same session ID on every call, I keep the assistant continuous instead of starting from scratch each time:
+
+```bash
+# first turn — seed a session
+claude -p "Hi, you are Nix" --session-id 9f2b...  --output-format json
+
+# every subsequent turn — resume that session
+claude --resume 9f2b... -p "what is on my plate today?" --output-format json
 ```
-Phone (Telegram) ─► tmux session ─► Claude Code session (Nix)
-                                       │
-                                       ▼
-                                memory + brain + skills
 
-Mac browser ──► Jarvis dashboard ─► Voice STT
-                                  └─► claude -p subprocess per turn
-                                        │
-                                        ▼
-                                  same engine, subscription-priced
+Resuming means I do not re-pay the system prompt and history on every call. Across a day, this is the difference between a chatty assistant and an unusable one.
+
+**tmux to make the session resilient.** I run Nix's primary session inside a named tmux window. If my terminal closes, my SSH dies, my screen sleeps, the session is unaffected:
+
+```bash
+# start (or attach to) the Nix tmux window
+tmux new-session -d -s nix
+tmux send-keys -t nix "claude" Enter
 ```
 
-Nix is one long-running Claude Code session. Each new Telegram message lands in the same tmux pane, with full context already loaded. Jarvis is the opposite shape. Every voice turn spawns a fresh `claude -p` subprocess that runs the prompt, returns the answer, and exits. It uses session resumption under the hood so each turn does not have to re-pay the system prompt and history.
+Anything that needs to talk to Nix sends input into this tmux pane. The Telegram bot pipes messages in, reads replies out, and forwards them.
 
-Both routes ride the same Claude subscription. No API key sitting on the side. No per-token meter. The difference is just session shape, not billing.
+**A LaunchAgent so it survives reboots.** macOS reboots, the Mac sleeps, the network blips. A LaunchAgent makes sure the tmux session and the Telegram bot come back automatically:
 
-Voice feels snappy because the model is fast and the subprocess startup is amortised across the conversation. Background work runs without watching a meter because there is no meter to watch.
+```xml
+<key>Label</key><string>io.narsi.nix</string>
+<key>ProgramArguments</key>
+<array>
+  <string>/bin/bash</string>
+  <string>-lc</string>
+  <string>tmux new-session -d -s nix 'claude'</string>
+</array>
+<key>RunAtLoad</key><true/>
+<key>KeepAlive</key><true/>
+```
+
+Drop the plist in `~/Library/LaunchAgents`, `launchctl bootstrap` it, done. The assistant is now genuinely always-on without anything more than my Mac being on.
+
+---
+
+## Two surfaces, one Nix
+
+The phone half is a small bun server that talks to the Telegram Bot API. Inbound messages get piped to the tmux session. Outbound replies go back to Telegram. About a hundred lines of code.
+
+The Mac half is a web dashboard at `localhost:3737` with a floating microphone orb. The wake word is "Hey Jarvis". I press it, talk, the browser does speech-to-text in the page, sends the text to a local endpoint that runs a fresh `claude -p` subprocess, and the response comes back as text plus voice. The voice surface has its own callable persona — Jarvis — but the engine underneath is the same Nix.
+
+If they share everything underneath, why two names at all? Why not just call both of them Nix, or both of them Jarvis?
+
+The names reflect *posture*, not implementation. Jarvis is the voice agent. The desk companion. Short questions, instant answers, conversational. Nix is the operator. The one I delegate to. Write this article, ship that code, summarise this long thread. Different expectations of how I work with each one, even though the engine and the memory underneath are the same.
+
+The shared files let them hand off to each other invisibly. The names keep the modes distinct in my head. The naming is a contract with myself about what kind of help I am about to ask for.
 
 ---
 
@@ -65,37 +102,29 @@ Voice feels snappy because the model is fast and the subprocess startup is amort
 
 The deeper trick is not the subscription. It is that Nix and Jarvis read from the same memory files, the same identity, the same project state, the same logged conversations.
 
-When I ping Nix from Telegram on the train, and later ask Jarvis at my desk "what was that thing we just talked about", Jarvis already knows. Not because the two assistants are talking to each other, but because they are both reading the same files. There is one "me" written down on disk, and any surface I open picks up exactly where the last one left off.
+When I ping Nix from Telegram on the train, and later ask Jarvis at my desk "what was that thing we just talked about", Jarvis already knows. Not because the two are talking to each other. Because they are both reading the same files. There is one "me" written down on disk, and any surface I open picks up exactly where the last one left off.
 
-That is the part that makes the setup feel less like two chat apps and more like one continuous assistant with two front doors.
+The memory layer is just Markdown files in a known folder, plus a SQLite log of every Telegram message:
 
-Fair question to ask at this point: if they share everything underneath, why two names at all? Why not just call both of them Jarvis, or both of them Nix?
+```
+~/.claude/projects/<project>/memory/
+├── MEMORY.md                      # one-line index of everything below
+├── user_preferences.md            # who I am, how I work
+├── project_<name>.md              # state of an ongoing project
+└── feedback_<topic>.md            # corrections I have given over time
+```
 
-The answer is that the names reflect *posture*, not implementation. Jarvis is the voice agent. The desk companion. Short questions, instant answers, conversational. Nix is the operator. The one I delegate to. Write this article, ship that code, summarise this long thread. Different expectations of how I work with each one, even though the engine and the memory underneath are the same.
-
-The shared files let them hand off to each other invisibly. The names keep the modes distinct in my head. When I open Slack and start typing, I am asking Nix. When I press the mic orb on my Mac, I am asking Jarvis. The naming is a contract with myself about what kind of help I am about to ask for.
-
----
-
-## What makes this work in practice
-
-Three pieces that took longer than I expected.
-
-**Persistence.** A Claude Code session has to stay alive between messages or the assistant has no continuity. I run mine in tmux, supervised by a Launch Agent. If the session crashes, the Launch Agent restarts it. If my Mac reboots, tmux comes up at login and the bot reconnects. The bot itself is a small bun server that talks to the Telegram Bot API and pipes messages into the Claude Code session.
-
-**Memory.** A subscription-powered assistant is only as useful as what it remembers between conversations. I keep two memory layers. Short-term is a chat logger that writes every message to a SQLite file, so a session restart does not lose this morning's context. Long-term is a folder of memory files I trust the model to read on each session start. Names, preferences, project state, things I have decided. The files are plain Markdown and I can read them too.
-
-**A personal knowledge base.** I built a small tool called Narsi-Brain that ingests my Telegram chats and GitHub repos every ten minutes and stores them in a vector database. Whenever I ask Nix "what was the status of project X?", a hook intercepts my prompt and adds the most relevant snippets from past conversations to the context. It costs nothing extra. The brain is local. The relevance work is a tiny embedding model, not a Claude call.
-
-The combined effect is that the assistant can answer "what did we decide about that project last week?" without me having to find the chat.
+The model reads these on each session start. New decisions get added as new files. Old facts that no longer hold get removed. Over months it becomes a real picture of me, written by me and by the assistant together.
 
 ---
 
 ## What this costs
 
-The flat Claude subscription is the only Claude-side cost. Outside that, I pay for:
+The flat Claude subscription is the only Claude-side cost.
 
-→ OpenAI's text-to-speech for Jarvis's voice replies (a few cents per long session)
+Outside that, I pay for:
+
+→ OpenAI's text-to-speech for Jarvis's voice replies, a few cents per long session
 → A cheap DigitalOcean droplet that hosts other agents I run separately
 
 That is it. No per-token meter. No surprise bill at month-end. The trade is that I had to build the plumbing once. It was a long Saturday.
@@ -108,17 +137,17 @@ Honesty matters here.
 
 This is not a magical unlimited setup. Claude Code has its own rate limits per subscription tier. If I tried to drive a hundred concurrent tasks through it, I would hit those limits. For one person with a phone and a laptop, the headroom is large.
 
-This is also not isolated from Claude's terms. The subscription is for personal Claude Code usage. I am not reselling it, exposing it to the public internet, or proxying queries for other people. Nix and Jarvis are tools for me. That distinction matters and it is the basis for the setup being acceptable.
+This is also not a workaround for Claude's terms. The subscription is for personal Claude Code usage. I am not reselling it, exposing it to the public internet, or proxying queries for other people. Nix is a tool for me. That distinction matters.
 
-Lastly, the assistant is only as good as the memory and prompts I give it. The setup is the easy half. The discipline of writing useful memory files, scoping prompts, and pruning stale context is the rest of the work. I am still iterating on that.
+Lastly, the assistant is only as good as the memory and prompts I give it. The setup is the easy half. The discipline of writing useful memory files, scoping prompts, and pruning stale context is the rest of the work.
 
 ---
 
 ## Why it matters
 
-Most people I talk to assume that running a personal AI 24/7 means paying through the nose for tokens. That is the default mental model and it pushes the goalposts to "only when I have a specific question."
+Most people I talk to assume that running a personal AI 24/7 means paying through the nose for tokens. That mental model pushes the goalposts to "only when I have a specific question."
 
-A subscription-powered setup flips it. The assistant runs all the time, watches my work, holds context across sessions, and does not penalise me for using it more. That changes the kind of question I think to ask. I no longer hesitate to ping Nix with "what is on my plate this week?" because the answer is free at the margin.
+A subscription-powered setup flips it. The assistant runs all the time, watches my work, holds context across sessions, and does not penalise me for using it more. That changes the kind of question I think to ask. I no longer hesitate to ping Nix with "what is on my plate this week" because the answer is free at the margin.
 
 The leverage is not in any one feature. It is in removing the token-counter from my head.
 
@@ -126,18 +155,18 @@ The leverage is not in any one feature. It is in removing the token-counter from
 
 ## Where to start if you want to copy the idea
 
-You do not need both pieces on day one. If I were starting over, I would do this in three steps.
+You do not need every piece on day one. If I were starting over, I would do this in three steps.
 
-First, get Claude Code installed and learn `claude -p`. Run a few prompts from your terminal. Get comfortable with the idea that the CLI is the gateway, not the chat UI.
+First, get Claude Code installed and learn `claude -p` with `--session-id` and `--resume`. Run a few prompts from your terminal until the idea of "one session, many turns" feels natural.
 
-Second, pick one interface that you already live in. Telegram, Slack, Discord, your shell. Wire that to a `claude -p` call. You now have an always-on assistant.
+Second, pick one interface you already live in. Telegram, Slack, Discord, your shell. Wire that to the resumable session. You now have an always-on assistant.
 
-Third, add memory. A folder of Markdown files the assistant reads on each start. A logger that captures the conversation. That is enough to feel different from a stateless chat app.
+Third, add memory. A folder of Markdown files the assistant reads on each start, plus a logger that captures the conversation. That alone is what makes it feel different from a stateless chat app.
 
 Voice and dashboards are nice-to-haves. The first two steps are the unlock.
 
 ---
 
-*If you want the technical details on any one piece (the tmux + Launch Agent setup, the Telegram bot, the memory pattern, the Narsi-Brain ingest pipeline), let me know in the comments and I will write that one up next.*
+*If you want the technical details on any one piece (the tmux + LaunchAgent setup, the Telegram bot, the memory pattern, the voice surface), let me know in the comments and I will write that one up next.*
 
 #ai #claude #personalassistant #automation #buildinpublic
