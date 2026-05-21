@@ -1,42 +1,46 @@
-# Nix: My Always-On AI That Runs on One Claude Subscription
+# Nix: Always On, Always Aware: How I Built My Personal AI
 
 ---
 
-The only difference between us and Tony Stark is that he had unlimited tokens.
+The next wave of AI isn't a better chatbot. It's agents you talk to. Always on, always aware of your world, able to actually do things. I built mine. Here's what it took.
 
-Everyone who has watched Iron Man has pictured having a Jarvis. Today's models can do the thinking half of that. The thing in the way is not the intelligence. It is the cost of using them constantly. What I ended up with is Nix, my personal assistant, running on one Claude subscription.
+I was one of the earliest users of OpenClaw. For a while I had it wired to my Claude subscription and it worked well. When that path closed, I took it as a reason to start from scratch, rebuilding on top of Claude Code as the engine and designing something properly.
 
----
-
-## A short history of trying
-
-I was one of the earliest users of OpenClaw. For a while I had it wired to my Claude subscription, which gave me what felt like the closest thing to Jarvis I had ever used. It was close, but not quite. I was sending voice messages over Telegram, not having a real conversation. Then Anthropic announced that the subscription could not be used with third-party agent frameworks. I lost the setup overnight.
-
-I switched to Claude Code's own channels plugin system. It needed a lot of plumbing. But it worked. The constraints were what they were, and I could build inside them.
-
-So I built Nix.
+That's Nix. It runs on my Mac as a native app, voice-activated and always listening. It's also a Telegram bot on my phone. Both surfaces share the same memory, the same context, the same Nix.
 
 ---
 
 ## What Nix can do
 
-Search the web. Read and reply to email. Manage my calendar. Control a browser — navigate, click, fill forms, take screenshots. Read and write files on my Mac. Write code, edit files, open pull requests on GitHub. Read and update Notion pages. Have a voice conversation on my Mac. Answer on my phone over Telegram.
+**Talks to me.** Voice on the Mac, Telegram on the phone.
 
-All of that. One assistant. One subscription.
+**Knows my world.** Reads and replies to email, manages my calendar, moves reminders around when plans change, and reads and updates Notion pages. It knows what's on today without me having to look.
+
+**Acts on my Mac.** Controls a browser (navigate, click, fill forms, take screenshots), reads and writes files, writes code, opens pull requests on GitHub.
+
+One assistant. Two surfaces. Same memory underneath.
 
 ---
 
-## The two things that make it work
+## What makes it actually useful
 
-Most personal AI setups fail at one of two things: cost or continuity.
+Most personal AI setups are still just a chat window. You open it, ask something, and close it. The assistant has no idea what you did yesterday, what's on your calendar, or what you were building last week. And it certainly can't open a browser and do something for you.
 
-**Cost:** Nix runs on a flat Claude subscription, not API calls. No per-token meter. No surprise bill at month-end. For one person, the headroom is large. That is the part that makes it sustainable.
+Nix is different in three ways.
 
-**Continuity:** Nix reads from the same memory files across every surface. The same identity, the same project state, the same logged conversations. When I ping Nix from Telegram on the train, and open the voice dashboard at my desk an hour later, Nix already knows what we talked about. Not because the surfaces are talking to each other. Because they are both reading the same files.
+**Always on.** Nix is not an app I open. It is a process that is already running. The voice orb sits on my screen. The Telegram bot is awake on my phone. There is no cold start, no "let me catch you up on context". When I have a question, I ask it. When I have a thing to do, I say it.
 
-There is one "me" written down on disk. Any surface I open picks up exactly where the last one left off.
+**Shared memory across surfaces.** Nix reads from the same memory files no matter where I talk to it. The same identity, the same project state, the same logged conversations. When I ping Nix from Telegram on the train, and open the Mac app at my desk an hour later, Nix already knows what we talked about.
 
-The memory layer is just Markdown files in a known folder, plus a SQLite log of every Telegram message:
+Not because the surfaces are calling each other. Because they are both reading the same files.
+
+**Actually does things.** Nix doesn't just answer. It acts. It opens a browser, navigates, clicks, fills forms, reads emails, moves calendar events. When I ask it to do something, I watch it happen. That's the gap most AI setups never close.
+
+---
+
+There is one source of truth on disk. Any surface I open picks up exactly where the last one left off.
+
+The memory layer is just Markdown files in a known folder, plus a SQLite log of every conversation, Telegram or voice:
 
 ```
 ~/.claude/projects/<project>/memory/
@@ -52,38 +56,131 @@ The model reads these on each session start. New decisions get added as new file
 
 ## Two surfaces, one Nix
 
-The phone half is a small bun server that talks to the Telegram Bot API. Inbound messages get piped to a Claude session. Outbound replies go back to Telegram. About a hundred lines of code.
+On my phone, Nix is a Telegram chat. I message it like a friend. Replies stream back with the typing indicator and fill in word by word.
 
-The Mac half is a web dashboard at `localhost:3737` with a floating microphone orb. The wake word is "Hey Nix". I talk, the browser does speech-to-text, sends the text to a local endpoint, and the response comes back as text plus voice.
+On my Mac, Nix is a native menu-bar app. A small orb sits up there all day showing status: idle, listening, thinking, speaking. Two ways to invoke it:
+
+- Say "Hey Nix" from anywhere and it wakes up
+- Hit `⌘⌥N` to pop open a quick window for a spoken query
+
+No tab to find, no app to bring to the front. Nix is just there. Chat history persists across app launches; reopen the app and the conversation picks up exactly where you left it.
+
+I say "Hey Nix, what's on my calendar" and hear the answer almost immediately, as if I'm talking to a friend. If Nix is mid-sentence and I start talking, it stops. Barge-in works via voice or just hitting the spacebar.
+
+When I ask it to do something real like move a meeting, check an email, or open a pull request, I watch the browser take over. It navigates, clicks, fills, confirms. I sit back. It is what makes this feel different from every other AI setup I have tried.
 
 Different surfaces, different interaction styles. But the same Nix, the same engine, the same memory underneath.
 
 ---
 
-## The technical core
+## The decisions that actually made it work
 
-Three things make the whole setup work reliably.
+A few unsexy choices along the way made the difference between "this kind of works" and "this is always on".
 
-**One long-running session.** Claude Code can run as a non-interactive command. By giving the same session ID on every call, I keep the assistant continuous instead of starting from scratch each time:
+**Skipping the Claude Code Telegram plugin.** My first cut wired Telegram through Claude Code's channels plugin system. Every incoming message reloaded the full Claude Code harness: MCP plugins, system prompt, ToolSearch dance, a cold start every single turn. For a chat surface where you want a reply in a second or two, that is the wrong shape.
 
-```bash
-# first turn — seed a session
-claude -p "Hi, you are Nix" --session-id 9f2b...  --output-format json
+I replaced it with a small Python bridge that long-polls the Telegram Bot API directly and pipes each message into one warm `claude` subprocess running in stream-json mode with no plugins loaded. The subprocess stays alive across messages. The prompt cache stays hot. Replies stream back almost immediately.
 
-# every subsequent turn — resume that session
-claude --resume 9f2b... -p "what is on my plate today?" --output-format json
-```
+The lesson: plugin systems exist for a reason, but for a single user on a single chat surface, going direct is faster and simpler.
 
-Resuming means I do not re-pay the system prompt and history on every call. Across a day, this is the difference between a chatty assistant and an unusable one.
+---
 
-**tmux to make the session resilient.** I run Nix inside a named tmux window. If my terminal closes, my screen sleeps, the session is unaffected:
+**STT: browser API to local whisper-server.** The voice surface started on `webkitSpeechRecognition`, the browser's built-in speech recognition. The problem: its language model biases toward common English. "Nix" kept getting transcribed as "next", "mix", or "knicks". Technical jargon and accented speech fared worse.
+
+I moved to Silero VAD in the browser (chunks the mic stream into speech segments) feeding a local **whisper-server**, whisper.cpp's HTTP server binary, Metal-accelerated on Apple Silicon. The browser POSTs short WAV blobs to `/api/voice/stt` and gets a transcript back. Wake word "Nix" now lands reliably. Still local. Still free.
+
+---
+
+**TTS: OpenAI to Google.** Voice replies started on OpenAI's `tts-1` (~$15 per million characters). Good voice, but a meter ticking on every reply. Switched to Google Cloud Chirp3 HD voices, comparable quality, **free up to a million characters per month**, which is more than I generate in a normal month.
+
+The TTS layer also auto-detects when usage is approaching the monthly free-tier cap and falls back to Neural2 automatically, so quality degrades gracefully instead of hitting an error. OpenAI and macOS `say` remain as further fallbacks if needed.
+
+---
+
+**Resumable sessions with `claude -p`.** The foundation of the whole thing is `claude -p` with `--session-id` and `--resume`. Instead of spawning a fresh Claude process for every message, you resume the same session. The context is already loaded. The prompt cache is already warm.
+
+This is what makes Nix feel like a continuous conversation rather than a series of isolated requests, and it's the same trick that makes both the Telegram bridge and the Mac app feel like they're talking to the same Nix.
+
+---
+
+**A semantic search layer over my entire history.** The flat memory files are great for structured facts: who I am, what projects I'm on. But they don't capture the texture of past conversations.
+
+For that, I built a local sqlite-vec database that embeds every past Telegram conversation and GitHub repo commit. When I ask "what was the plan for X?" or "where did we leave off on Y?", Nix runs a vector search over months of history before answering. The flat files tell Nix who I am. The search index tells Nix what we've talked about.
+
+Today it indexes Telegram and GitHub, but the architecture is pluggable:
+
+- Notion pages
+- Email threads
+- Calendar history
+- Browser bookmarks
+
+Together they're the closest thing I have to a second brain.
+
+---
+
+**Playwright MCP for browser automation.** Instead of writing custom browser automation code, Nix uses Playwright MCP, a Model Context Protocol server that gives Claude full browser control out of the box:
+
+- Navigate, click, fill forms, take screenshots, scrape content
+- All available as native tools without a single line of custom automation code
+
+It's the reason "open a pull request" or "check my email" just works.
+
+---
+
+**Channel-source tagging.** Every message is wrapped in a source tag (`<channel source="mac">` or `<channel source="telegram">`) before it reaches Claude. This lets the system know which surface a message came from, route it correctly, and deduplicate logging without any manual bookkeeping.
+
+**Auto-logging via Claude Code hooks.** The conversation logger runs as a Claude Code hook, not a script I call manually. Every turn, question and answer, gets written to a shared SQLite database automatically. Both surfaces write to the same log, keyed by source tag. No surface has to remember to log anything. The memory just accumulates.
+
+---
+
+The pattern across all: drop the convenient default, pick the option that runs warm, local, or free at personal scale.
+
+---
+
+## What makes it feel real-time
+
+Picking the right pieces is half the battle. The other half is running them so the voice loop does not feel laggy.
+
+**Keep whisper warm.** The first version of the STT endpoint spawned `whisper-cli` per request. Every call paid a 6-12 second cold start to load the model and compile Metal shaders. End-to-end latency was **7-19 seconds**, fine for a transcription tool, unusable for a voice assistant.
+
+I switched to running `whisper-server` as a long-lived child of the Node process. The model loads once at startup. Metal shaders compile once. The Node server POSTs each audio chunk to `127.0.0.1:8181` and gets a transcript back in **about 150 ms**.
+
+**A 50x speedup from a single architectural change.**
+
+The child is supervised: if it crashes, the parent respawns it with a small backoff; if Node shuts down, the child gets a clean SIGTERM. Keep the expensive process alive across requests, and supervise it so the savings do not come at the cost of fragility.
+
+---
+
+**Chunk the reply into sentences for TTS.** The naive approach is to wait for the full model reply, hand the whole thing to TTS, then start playback. For a multi-sentence answer that means a long silent gap before Nix says anything.
+
+Instead, the client watches the streaming reply for sentence boundaries: `.`, `!`, `?` followed by whitespace, or paragraph breaks. As soon as a complete sentence is available, it gets pushed onto a queue. A drain loop fetches and plays sentences one at a time while later ones are still streaming in.
+
+The result: Nix starts speaking the first sentence while the model is still writing the third.
+
+This matters even more for complex requests that involve tool calls: checking the calendar, reading an email, opening a pull request. Those tasks take longer, and without sentence chunking, Nix would go silent while it works. With it, Nix narrates as it goes: you hear what it's doing in real time, not a long pause followed by a wall of text. That's the difference between a voice assistant and a voice search bar.
+
+---
+
+**Mac-side latency tuning.** Beyond the server-side optimisations, the Swift client on the Mac has its own latency budget. Tuning the audio pipeline (buffer sizes, AVAudioConverter settings, how quickly the mic hands off to the STT endpoint) saved another 500-700 ms per turn.
+
+The server can be fast and the client can still be the bottleneck; you have to tune both ends.
+
+The pattern here is the same idea in a different shape: keep work warm, and pipeline it. Cold-start once, pay nothing per request. Stream output and start consuming it before the producer finishes.
+
+---
+
+## Surviving reboots and crashes
+
+Two pieces of infrastructure keep Nix running through everything macOS throws at it.
+
+**tmux to make the session resilient.** Nix runs inside a named tmux window. If my terminal closes or my screen sleeps, the session is unaffected:
 
 ```bash
 tmux new-session -d -s nix
 tmux send-keys -t nix "claude" Enter
 ```
 
-**A LaunchAgent so it survives reboots.** macOS reboots, the Mac sleeps. A LaunchAgent makes sure the tmux session and the Telegram bot come back automatically:
+**A LaunchAgent so it survives reboots.** A LaunchAgent makes sure the tmux session and the Telegram bot come back automatically after a reboot:
 
 ```xml
 <key>Label</key><string>io.narsi.nix</string>
@@ -99,60 +196,22 @@ tmux send-keys -t nix "claude" Enter
 
 Drop the plist in `~/Library/LaunchAgents`, `launchctl bootstrap` it, done.
 
----
-
-## What this costs
-
-The flat Claude subscription is the only cost. No API keys. No per-token billing.
-
-Outside that:
-
-→ Google's text-to-speech for Nix's voice replies, free up to 1 million characters a month, which covers almost everything I throw at it
-
-That is it. No per-token meter. No surprise bill at month-end. The trade is that I had to build the plumbing once. It was a long Saturday.
+**`caffeinate` to survive long tasks.** macOS will put the machine to sleep mid-task if left idle long enough. For a voice assistant that might be browsing, reading emails, or running a multi-step agent task, that's a silent killer. Wrapping the Telegram bridge in `caffeinate` keeps the Mac awake for the duration of any active session, with no interrupted tasks and no half-finished replies.
 
 ---
 
-## What it is not
+## Honest caveats
 
-One thing before anything else: this is for personal use only. The Claude subscription is not meant for commercial applications or multi-user products.
+This is for personal use only. The Claude subscription is not meant for commercial applications or multi-user products.
 
-Honesty matters here.
+Nix runs on the interactive tier of Claude Code, which is flat-fee and works well within its rate limits for a single user. If I tried to drive a hundred concurrent tasks through it, I would hit those limits. The headroom is for one person with a phone and a laptop, not a fleet.
 
-This is not a magical unlimited setup. Claude Code has its own rate limits per subscription tier. If I tried to drive a hundred concurrent tasks through it, I would hit those limits. For one person with a phone and a laptop, the headroom is large.
+Outside the subscription, Nix depends on Google's text-to-speech for voice replies. Free up to a million characters per month, which covers almost everything I throw at it.
 
-Lastly, the assistant is only as good as the memory and prompts I give it. The setup is the easy half. The discipline of writing useful memory files, scoping prompts, and pruning stale context is the rest of the work.
-
----
-
-## Why it matters
-
-Most people I talk to assume that running a personal AI 24/7 means paying through the nose for tokens. That mental model makes you hesitate. You only ask when you really have to.
-
-A subscription-powered setup flips it. The assistant runs all the time, holds context across sessions, and does not penalise me for using it more. I use it the way I use Google Search — constantly, without thinking about cost. Morning briefings, quick questions, long coding sessions, browser automation. It is just there.
-
-The leverage is not in any one feature. It is in removing the token-counter from my head.
+And the assistant is only as good as the memory and prompts I give it. The setup is the easy half. The discipline of writing useful memory files, scoping prompts, and pruning stale context is the rest of the work.
 
 ---
 
-## Where to start if you want to copy the idea
+Three months ago I was sending voice notes to a bot. Today I have Nix. The difference is everything in this article.
 
-You do not need every piece on day one. If I were starting over, I would do this in three steps.
-
-First, get Claude Code installed and learn `claude -p` with `--session-id` and `--resume`. Run a few prompts from your terminal until the idea of "one session, many turns" feels natural.
-
-Second, pick one interface you already live in. Telegram, Slack, Discord, your shell. Wire that to the resumable session. You now have an always-on assistant.
-
-Third, add memory. A folder of Markdown files the assistant reads on each start, plus a logger that captures the conversation. That alone is what makes it feel different from a stateless chat app.
-
-Voice is not a nice-to-have. It is what makes it feel like Jarvis. The moment I stopped typing and started talking, everything changed. I ask, I watch it happen. Calendar checked, code written, files created. That feedback loop is what makes this worth building.
-
----
-
-*If you want the technical details on any one piece (the tmux + LaunchAgent setup, the Telegram bot, the memory pattern, the voice surface), let me know in the comments and I will write that one up next.*
-
----
-
-Three months ago I was sending voice notes to a bot. Today I have a conversation with an assistant that knows my projects, reads my email, controls my browser, and costs me nothing extra per question. That gap is what this article is about.
-
-#ai #claude #personalassistant #automation #buildinpublic
+#claude #personalassistant #automation #buildinpublic
