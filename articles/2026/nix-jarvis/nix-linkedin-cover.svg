@@ -1,0 +1,139 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 720" width="1280" height="720">
+  <defs>
+    <!-- Background gradient -->
+    <radialGradient id="bgGrad" cx="68%" cy="50%" r="75%">
+      <stop offset="0%" stop-color="#0e1530"/>
+      <stop offset="55%" stop-color="#070a1a"/>
+      <stop offset="100%" stop-color="#03050d"/>
+    </radialGradient>
+
+    <!-- Orb core gradient -->
+    <radialGradient id="orbCore" cx="42%" cy="38%" r="70%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="1"/>
+      <stop offset="18%" stop-color="#cfe3ff" stop-opacity="1"/>
+      <stop offset="45%" stop-color="#6aa8ff" stop-opacity="1"/>
+      <stop offset="75%" stop-color="#3a5fd8" stop-opacity="0.95"/>
+      <stop offset="100%" stop-color="#1b2566" stop-opacity="1"/>
+    </radialGradient>
+
+    <!-- Outer glow gradient -->
+    <radialGradient id="orbGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%"  stop-color="#7fb3ff" stop-opacity="0.55"/>
+      <stop offset="40%" stop-color="#3a6fff" stop-opacity="0.18"/>
+      <stop offset="100%" stop-color="#3a6fff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Specular highlight -->
+    <radialGradient id="orbHighlight" cx="35%" cy="28%" r="35%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.85"/>
+      <stop offset="60%" stop-color="#ffffff" stop-opacity="0.05"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Ring stroke gradient -->
+    <linearGradient id="ringGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7fb3ff" stop-opacity="0.0"/>
+      <stop offset="50%" stop-color="#7fb3ff" stop-opacity="0.55"/>
+      <stop offset="100%" stop-color="#7fb3ff" stop-opacity="0.0"/>
+    </linearGradient>
+
+    <!-- Subtle grid for texture -->
+    <pattern id="grid" x="0" y="0" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#1a2240" stroke-width="0.5" opacity="0.35"/>
+    </pattern>
+
+    <!-- Soft blur filter -->
+    <filter id="softBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="14"/>
+    </filter>
+    <filter id="bigBlur" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1280" height="720" fill="url(#bgGrad)"/>
+  <rect width="1280" height="720" fill="url(#grid)"/>
+
+  <!-- Distant ambient glows -->
+  <circle cx="180" cy="640" r="220" fill="#1f3a8a" opacity="0.18" filter="url(#bigBlur)"/>
+  <circle cx="1180" cy="120" r="180" fill="#3b5bff" opacity="0.14" filter="url(#bigBlur)"/>
+
+  <!-- Orb cluster (right side) -->
+  <g transform="translate(940 360)">
+    <!-- Outer soft glow -->
+    <circle r="320" fill="url(#orbGlow)"/>
+    <!-- Faint outer rings -->
+    <circle r="240" fill="none" stroke="url(#ringGrad)" stroke-width="1.2" opacity="0.7" transform="rotate(15)"/>
+    <circle r="210" fill="none" stroke="url(#ringGrad)" stroke-width="0.8" opacity="0.5" transform="rotate(-22)"/>
+    <circle r="275" fill="none" stroke="url(#ringGrad)" stroke-width="0.6" opacity="0.35" transform="rotate(40)"/>
+
+    <!-- Orb body -->
+    <circle r="170" fill="url(#orbCore)"/>
+    <!-- Rim light -->
+    <circle r="170" fill="none" stroke="#9cc3ff" stroke-width="1.5" opacity="0.55"/>
+    <!-- Inner depth shadow -->
+    <circle r="170" fill="#0a1030" opacity="0.18"/>
+    <!-- Specular highlight -->
+    <ellipse cx="-45" cy="-55" rx="80" ry="55" fill="url(#orbHighlight)"/>
+    <!-- Tiny bright spec -->
+    <circle cx="-55" cy="-68" r="6" fill="#ffffff" opacity="0.9"/>
+
+    <!-- Floating dot accents -->
+    <circle cx="190" cy="-110" r="3" fill="#9cc3ff" opacity="0.9"/>
+    <circle cx="-220" cy="60" r="2" fill="#9cc3ff" opacity="0.7"/>
+    <circle cx="170" cy="180" r="2.5" fill="#9cc3ff" opacity="0.8"/>
+    <circle cx="-180" cy="-150" r="2" fill="#9cc3ff" opacity="0.6"/>
+  </g>
+
+  <!-- Sound wave bars next to title (subtle) -->
+  <g transform="translate(100 460)" opacity="0.85">
+    <rect x="0"  y="-8"  width="4" height="16" rx="2" fill="#6aa8ff"/>
+    <rect x="10" y="-18" width="4" height="36" rx="2" fill="#7fb3ff"/>
+    <rect x="20" y="-30" width="4" height="60" rx="2" fill="#9cc3ff"/>
+    <rect x="30" y="-14" width="4" height="28" rx="2" fill="#7fb3ff"/>
+    <rect x="40" y="-22" width="4" height="44" rx="2" fill="#6aa8ff"/>
+    <rect x="50" y="-10" width="4" height="20" rx="2" fill="#5a8fe6"/>
+  </g>
+
+  <!-- Top eyebrow -->
+  <g transform="translate(100 170)">
+    <rect x="0" y="-2" width="36" height="2" rx="1" fill="#7fb3ff"/>
+    <text x="48" y="4" font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+          font-size="18" font-weight="600" letter-spacing="3" fill="#9cc3ff">
+      A PERSONAL AI
+    </text>
+  </g>
+
+  <!-- Main title -->
+  <text x="100" y="330" font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+        font-size="180" font-weight="800" fill="#ffffff" letter-spacing="-4">
+    Nix
+  </text>
+
+  <!-- Subtitle -->
+  <text x="100" y="410" font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+        font-size="44" font-weight="600" fill="#e6ecff" letter-spacing="-1">
+    Always On. Always Aware.
+  </text>
+
+  <!-- Tagline -->
+  <text x="100" y="560" font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+        font-size="22" font-weight="400" fill="#8aa0d6" letter-spacing="0.3">
+    How I built a voice-activated AI assistant
+  </text>
+  <text x="100" y="590" font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+        font-size="22" font-weight="400" fill="#8aa0d6" letter-spacing="0.3">
+    that lives on my Mac and my phone.
+  </text>
+
+  <!-- Byline -->
+  <g transform="translate(100 660)">
+    <circle cx="10" cy="0" r="10" fill="#7fb3ff" opacity="0.25"/>
+    <circle cx="10" cy="0" r="4" fill="#7fb3ff"/>
+    <text x="30" y="6" font-family="Inter, 'Helvetica Neue', Arial, sans-serif"
+          font-size="18" font-weight="500" fill="#aab8de" letter-spacing="0.5">
+      Narasimha Badrinath
+    </text>
+  </g>
+</svg>

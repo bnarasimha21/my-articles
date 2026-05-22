@@ -1,0 +1,11 @@
+I built Nix, a personal AI assistant that is always on and remembers everything I tell it.
+
+It answers on my Mac by voice and on my phone over Telegram. Same memory files underneath, so the conversation I start at my desk continues on the train without me having to re-explain anything.
+
+Under the hood: a Claude Code session kept alive in tmux, a LaunchAgent for reboots, and Markdown files as long-term memory.
+
+One long Saturday to build. Every day since, it just runs.
+
+The Jarvis dream was never about unlimited tokens. It was about an assistant that is always there and actually knows you.
+
+#AI #Claude #PersonalAssistant #BuildInPublic

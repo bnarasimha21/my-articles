@@ -1,5 +1,17 @@
 Nix: Always On, Always Aware: How I Built My Personal AI
 
+Most AI assistants are still just a chat window you open and close.
+
+Nix is different. It's always running. Always aware of what we talked about. On my Mac, on my phone — same memory, same context, same assistant.
+
+I built it on top of Claude Code. Voice, Telegram, browser automation, persistent memory. This is Nix doing one of the simpler things it does every day. The article goes into everything else.
+
+Link in the comments 👇
+
+#claude #personalassistant #voiceagent #buildinpublic #AI
+
+---
+
 The next wave of AI isn't a better chatbot. It's agents you talk to. Always on, always aware of your world, able to actually do things. I built mine. Here's what it took.
 
 I was one of the earliest users of OpenClaw. For a while I had it wired to my Claude subscription and it worked well. When that path closed, I took it as a reason to start from scratch, rebuilding on top of Claude Code as the engine and designing something properly.

@@ -2,7 +2,7 @@
 
 ---
 
-The next wave of AI isn't a better chatbot. It's agents you talk to. Always on, always aware of your world, able to actually do things. I built mine. Here's what it took.
+The next wave of AI isn't a better chatbot. It's agents you talk to. Always on, always aware of your world, able to actually do things. 
 
 I was one of the earliest users of OpenClaw. For a while I had it wired to my Claude subscription and it worked well. When that path closed, I took it as a reason to start from scratch, rebuilding on top of Claude Code as the engine and designing something properly.
 
@@ -18,6 +18,8 @@ That's Nix. It runs on my Mac as a native app, voice-activated and always listen
 
 **Acts on my Mac.** Controls a browser (navigate, click, fill forms, take screenshots), reads and writes files, writes code, opens pull requests on GitHub.
 
+and a lot more!
+
 One assistant. Two surfaces. Same memory underneath.
 
 ---
@@ -30,7 +32,7 @@ Nix is different in three ways.
 
 **Always on.** Nix is not an app I open. It is a process that is already running. The voice orb sits on my screen. The Telegram bot is awake on my phone. There is no cold start, no "let me catch you up on context". When I have a question, I ask it. When I have a thing to do, I say it.
 
-**Shared memory across surfaces.** Nix reads from the same memory files no matter where I talk to it. The same identity, the same project state, the same logged conversations. When I ping Nix from Telegram on the train, and open the Mac app at my desk an hour later, Nix already knows what we talked about.
+**Shared memory across surfaces.** Nix reads from the same memory files no matter where I talk to it. The same identity, the same project state, the same logged conversations. When I ping Nix from Telegram when I am outside, and open the Mac app at my desk an hour later, Nix already knows what we talked about.
 
 Not because the surfaces are calling each other. Because they are both reading the same files.
 
@@ -75,7 +77,7 @@ Different surfaces, different interaction styles. But the same Nix, the same eng
 
 ## The decisions that actually made it work
 
-A few unsexy choices along the way made the difference between "this kind of works" and "this is always on".
+A few choices along the way made the difference between "this kind of works" and "this is always on".
 
 **Skipping the Claude Code Telegram plugin.** My first cut wired Telegram through Claude Code's channels plugin system. Every incoming message reloaded the full Claude Code harness: MCP plugins, system prompt, ToolSearch dance, a cold start every single turn. For a chat surface where you want a reply in a second or two, that is the wrong shape.
 
