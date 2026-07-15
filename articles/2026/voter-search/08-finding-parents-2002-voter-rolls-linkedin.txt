@@ -1,0 +1,61 @@
+It still baffles me how many people use AI today only as a fancy autocomplete, when the thing in front of them can do so much more.
+
+Here is one real example.
+
+—
+
+The problem
+
+Karnataka's SIR exercise asks you to prove you voted in 2002 by finding your entry in that year's roll.
+
+Sounds simple. It is not.
+
+The rolls sit on a government site with almost no search. If you know only a couple of details, you cannot tell which PDF holds your record. So people download all the PDFs and open them one by one.
+
+And it gets even more difficult:
+→ The data is in Kannada
+→ Each page is a scanned image, not text, so you cannot Ctrl-F it
+→ One constituency can run 4,000 pages. Some cross 10,000.
+
+And it is not even a one-person job. Without a tool, you lean on whoever is running the SIR drive: you send a name, they search when they are free, a spelling is off, you go around again. A few names can burn an afternoon of two people's time.
+
+So I stopped and opened Claude Code.
+
+—
+
+How it works
+
+→ Predictable URLs, no CAPTCHA. Decode the scheme and fetch every part programmatically.
+→ OCR every page in Kannada with Tesseract, turning scanned images into text.
+→ Match on the consonant skeleton. Strip the vowel marks, so OCR errors on vowels do not cause misses.
+→ Cache the OCR per part, so the job is resumable and re-searching is instant.
+
+—
+
+Three problems the real world threw at a plan, and how Claude and I fixed them.
+
+1. The server fought back. Eight parallel downloads, and it silently dropped about half with no retry. Fix: retries with backoff, lower concurrency.
+
+2. It did not scale to a thousand parts. One constituency has 1,104. Downloading everything before OCR meant throttling and no text until it finished. Fix: interleave, download one part then OCR it, one request at a time. It could stop the second it found a match.
+
+3. Some names are too common. Search one alone and you get a dozen unrelated people. Fix: search for the couple, not one name. Only count a page where both names appear together, since a married couple is recorded as relatives of each other.
+
+—
+
+The payoff
+
+There they were. My parents, Badrinath and Sujaya, one household, two adjacent rows, same house number. My father under his own father's name, my mother right below, recorded as his wife.
+
+I confirmed it by rendering the page and reading it myself. It even saved the proof: a screenshot and the exact file, in a results folder. About 30 minutes to build the tool, 45 more to find them.
+
+—
+
+The takeaway
+
+I described what I wanted and let the agent decide how. It hardened the matching, debugged the throttling, and inferred the household rule on its own.
+
+We are not short on AI. We are short on the habit of handing it a real, messy problem and letting it do more than autocomplete.
+
+Built once, it is reusable: every search after is just a name. The full source is open, link in the first comment. Try it on your own 2002 entry for the SIR form.
+
+#AI #ClaudeCode #AIagents #OCR #CivicTech

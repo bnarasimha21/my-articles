@@ -58,6 +58,37 @@
       "tags": ["claude-code", "personal-ai", "telegram", "voice", "automation", "memory", "always-on"],
       "source": "linkedin",
       "path": "articles/2026/nix-jarvis/05-nix-jarvis-claude-subscription.md"
+    },
+    {
+      "slug": "06-agent-memory-showdown",
+      "title": "I Benchmarked 4 AI Memory Backends So You Don't Have To",
+      "date": "2026-06-01",
+      "year": 2026,
+      "status": "draft",
+      "tags": ["ai-agents", "memory", "benchmarking", "langchain", "vector-database", "qdrant", "pgvector"],
+      "source": "linkedin",
+      "path": "articles/2026/agent-memory-showdown/06-agent-memory-showdown.md"
+    },
+    {
+      "slug": "07-when-your-llm-gets-retired",
+      "title": "When Your LLM Gets Retired: What You Actually Need to Do",
+      "date": "2026-06-03",
+      "year": 2026,
+      "status": "draft",
+      "tags": ["llm", "model-deprecation", "migration", "ai-engineering", "mlops", "openai"],
+      "source": "linkedin",
+      "path": "articles/2026/model-retirement/07-when-your-llm-gets-retired.md"
+    },
+    {
+      "slug": "08-finding-parents-2002-voter-rolls",
+      "title": "Finding My Parents in a 24-Year-Old Scanned Voter Roll",
+      "date": "2026-07-15",
+      "year": 2026,
+      "status": "draft",
+      "format": "post",
+      "tags": ["ai-agents", "claude-code", "ocr", "kannada", "civic-tech", "agentic"],
+      "source": "linkedin",
+      "path": "articles/2026/voter-search/08-finding-parents-2002-voter-rolls-linkedin.txt"
     }
   ]
 }

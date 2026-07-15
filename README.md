@@ -12,6 +12,9 @@ A collection of my articles and posts from LinkedIn and X/Twitter.
 | 2026-03-16 | [I Got Locked Out of My Own GitHub. An AI Agent Did It.](articles/2026/api-rate-limiting/03-ai-agent-rate-limiting.md) | 📝 Draft | ai-agents, api, rate-limiting, infrastructure, security |
 | 2026-03-23 | [Let the Model Decide: From Fixed Pipelines to Dynamic Agent Orchestration](articles/2026/multiagent-travelplanner/04-dynamic-multi-agent-pattern.md) | 📝 Draft | ai-agents, multi-agent, parallel-execution, architecture, mapreduce |
 | 2026-05-13 | [Nix: My Always-On AI Assistant With Shared Memory](articles/2026/nix-jarvis/05-nix-jarvis-claude-subscription.md) | 📝 Draft | claude-code, personal-ai, telegram, voice, automation, memory, always-on |
+| 2026-06-01 | [I Benchmarked 4 AI Memory Backends So You Don't Have To](articles/2026/agent-memory-showdown/06-agent-memory-showdown.md) | 📝 Draft | ai-agents, memory, benchmarking, langchain, qdrant, pgvector |
+| 2026-06-03 | [When Your LLM Gets Retired: What You Actually Need to Do](articles/2026/model-retirement/07-when-your-llm-gets-retired.md) | 📝 Draft | llm, model-deprecation, migration, ai-engineering, mlops |
+| 2026-07-15 | [Finding My Parents in a 24-Year-Old Scanned Voter Roll](articles/2026/voter-search/08-finding-parents-2002-voter-rolls-linkedin.txt) (post) | 📝 Draft | ai-agents, claude-code, ocr, kannada, civic-tech |
 
 ---
 
