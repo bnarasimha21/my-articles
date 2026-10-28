@@ -89,6 +89,15 @@
       "tags": ["ai-agents", "claude-code", "ocr", "kannada", "civic-tech", "agentic"],
       "source": "linkedin",
       "path": "articles/2026/voter-search/08-finding-parents-2002-voter-rolls-linkedin.txt"
+    },
+    {
+      "slug": "09-is-your-llm-router-good-enough-to-ship",
+      "title": "Is Your LLM Ticket Router Good Enough to Ship?",
+      "date": "2026-10-26",
+      "year": 2026,
+      "tags": ["llm", "evals", "ai-engineering", "claude", "support-automation", "shadow-mode"],
+      "source": "linkedin",
+      "path": "articles/2026/llm-ticket-triage/09-is-your-llm-router-good-enough-to-ship.md"
     }
   ]
 }
