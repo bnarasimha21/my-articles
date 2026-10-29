@@ -1,166 +1,149 @@
 # What Happens to Your LLM App at 9am on Monday?
 
-In my last article I built an LLM ticket router for Ledgerly, a fictional invoicing SaaS, and wrote a plan to roll it out in stages. Then their platform lead read it and sent one message:
+My LLM gateway retried its way through a 20% failure rate without dropping a single call. Then I simulated 9am on Monday, and 20 of 50 clients got an error anyway.
+
+It started with a message from a platform lead:
 
 > "Before this touches production: what happens when Anthropic rate-limits us at 9am on Monday, what happens when it is down, and what will it cost us a month? I want numbers, not vibes."
 
-"We call the API" answers none of those. So I built the piece that sits between the app and the model: a small gateway that every LLM call goes through. It retries the errors worth retrying, falls back to a second model, can slow itself down before the provider has to, and logs every call with its cost.
+The customer is Ledgerly, the fictional invoicing SaaS from my last article, where I built an LLM ticket router and a plan to roll it out. The support lead liked the plan. The platform lead wanted to know what happens when things go wrong.
 
-Then I broke it on purpose. I made 20% of attempts fail and it still delivered all 200 calls. I simulated 50 clients hitting a rate limit at once, and the standard advice did not behave the way I expected. And I made prompt caching cost more than no caching at all, with one line a teammate might add.
+So I built a small gateway that every LLM call goes through. It retries errors that might succeed on a second try, can fall back to a second model, and logs every call with its cost. Then I tried to break it.
 
----
-
-## The setup
-
-The gateway is one function, `complete()`, that everything calls instead of calling Anthropic's Python library (the SDK) directly. It returns the answer plus what you need to operate it: tokens, cost, latency, attempts, and which model actually answered.
-
-The design choice that made it testable: the gateway takes the provider, the clock and the sleep function as arguments. Tests pass in a fake provider that plays a script ("rate limited, rate limited, then ok") and a sleep that only writes down how long it was asked to wait. So "five overloaded errors, then switch to the fallback model" runs in milliseconds and costs nothing. The 48 tests run offline in about 3 seconds.
-
-The live experiments all ran on Claude Haiku 5.5 and cost a few cents. Every Sonnet number below is price arithmetic, not a measurement.
+The short version: retries make random errors disappear. They did not survive a 9am burst, they cannot ride out an outage, and they will not tell you when caching quietly makes your bill go up.
 
 ---
 
-## Retry only what can succeed
+## The 9am burst
 
-Some errors go away if you wait: a 429 (rate limited), a 529 (overloaded), other server-side errors, timeouts and dropped connections. Others never do. A 400 (bad request), 401 (bad key), 403, 404 or 413 (request too large) fails the same way every time, so the gateway fails fast on those, and on any error it does not recognise.
+Here is the simulation. 50 clients start at the same moment. The server accepts 10 requests per second and sends a 429 (rate limited) to everyone else. Even in a perfect world, the last client gets in during the fifth second.
 
-Before writing code I predicted one number. The SDK retries twice on its own by default. If I wrap it in my own loop of 4 attempts, what is the worst case number of requests for one call? I said 3.
+My gateway tries each call 4 times and then gives up. Between tries it waits a little: up to half a second, then up to 1, then up to 2. That is about 3.5 seconds of waiting in total, and the crowd needs 5 seconds to clear.
 
-The answer is 12. Each of my 4 attempts is 1 request plus up to 2 SDK retries. Two layers of retries that do not know about each other multiply, and your attempt counts stop meaning anything. The fix is one argument, `max_retries=0` on the client, so the gateway owns every retry.
+With those limits, 30 of the 50 clients got an error with a fixed wait between tries. With exponential backoff, where the wait doubles each time, 20 got an error. Adding jitter, a random wait instead of an exact one, made no difference: still about 20 of 50.
 
-> Retrying a bug does not fix it. It multiplies the bill by the number of attempts.
+That surprised me, because jitter is the standard advice for exactly this. So I took the attempt limit away and let every client retry until it got in, to see what jitter actually changes.
 
----
+My prediction was that a fixed wait would do worst and exponential without jitter best. I was wrong on both.
 
-## Jitter did not do what I expected
-
-When a call is rate limited, you wait and try again. Exponential backoff doubles the wait each time. Jitter picks a random wait between zero and that ceiling, so clients that failed together do not all retry together.
-
-I simulated 9am on Monday: 50 clients start at the same moment, and the server accepts only 10 requests per one-second window. Everyone else gets a 429. The last client cannot get in before the fifth window, which starts at 4 seconds. Clients retry for as long as it takes. I compared three policies over 200 random seeds.
-
-My prediction: a fixed wait would be worst, exponential without jitter fastest. I was wrong on both counts.
-
-| Policy (base wait 1 s) | Last client gets in at | 429s |
+| Policy (base wait 1 s) | Last client gets in at | Rejected requests |
 |---|---|---|
 | Fixed 1 s wait | 4.0 s | 100 |
 | Exponential, no jitter | 15.0 s | 100 |
-| Exponential, full jitter | 10.4 s on average (slowest seed 34.7 s) | 111 |
+| Exponential with jitter | 10.4 s on average (slowest of 200 runs: 34.7 s) | 111 |
 
-The fixed wait won by luck. A 1 second wait matches the server's 1 second window, so each wave of retries lands in a fresh window and fills it. Exponential without jitter was slowest: everyone retried together, and the server sat idle in the growing gaps between waves. Its 429 count was identical on every seed, the signature of synchronized waves.
+The fixed wait finished first, and it was fast at every setting I tried, because it simply retries often. Its low rejection count was luck, though. A 1 second wait matches the server's 1 second window exactly, so each wave of retries landed in a fresh window. With a 0.3 second wait it still finished first, in 4.2 seconds, but it threw 360 rejected requests at the server to get there.
 
-With a 0.3 second base wait, which no longer matches the window, the picture flipped. Jitter caused the fewest 429s (171, against 180 for exponential and 360 for fixed) and finished in 9.7 seconds against 18.9 for exponential. So jitter's real job is to stop clients moving in lockstep. It is not always faster, and it has a long tail: one client waited 34.7 seconds.
+Exponential without jitter was the slowest. Everyone who failed together retried together, and the server sat idle in the gaps between waves. Jitter spread them out: at the 0.3 second setting it had the fewest rejections (171) and finished in 9.7 seconds against 18.9.
 
-That tail sent me back to the simulation, because my gateway does not retry forever. It gives up after 4 attempts, with waits of up to 0.5, 1 and 2 seconds. Rerun with those limits, the same burst left about 20 of 50 clients with an error under jitter, and 30 of 50 with a fixed wait. Four quick attempts cannot outlast a crowd that needs five seconds to clear.
+So jitter makes the retries kinder to the server. It did not get more clients through a burst my gateway gives up on after 3.5 seconds. For that you need to stop the crowd forming in the first place. That means a rate limiter on your side, or less traffic at 9am. I have not simulated that fix yet.
 
-> Retries handle random blips. A synchronized burst needs something that stops the crowd forming: a rate limiter on your side, or less traffic at the peak.
+The simulation is simple. It ignores the `retry-after` header a real 429 can carry, which my gateway honours as a minimum wait, so real waits could be longer and fewer clients might fail.
 
 ---
 
-## I broke 20% of attempts on purpose
+## Random errors are a different story
 
-The gateway has a chaos switch. Set `GATEWAY_CHAOS=0.2` and 20% of attempts fail with a fake 429 or timeout before they reach the network. These failures are random and independent, like blips, not like the burst above.
+The gateway has a chaos switch that makes a share of attempts fail on purpose, with a fake 429 or timeout, before they reach the network. These failures are random and independent. One call failing says nothing about the next.
 
-I was not sure what to expect, so I worked it out first. A call fails only if all 4 attempts do: 0.2 × 0.2 × 0.2 × 0.2 = 0.16%. Expected attempts per call: about 1.25.
+I set it to 20% and worked out what to expect first. A call fails only if all 4 attempts fail: 0.2 × 0.2 × 0.2 × 0.2 = 0.16%. On average each call should need about 1.25 attempts.
 
-Then I ran the router from the last article through the gateway, 40 tickets × 5 runs on Haiku, once clean and once with chaos.
+Then I ran the router from the last article through the gateway: 40 tickets, 5 runs, on Claude Haiku 5.5. Once clean, once with chaos.
 
 | Batch | Calls | Failed | Attempts per call | Median latency | Slowest 1 in 20 | Cost |
 |---|---|---|---|---|---|---|
 | Clean | 200 | 0 | 1.000 | 871 ms | 1,681 ms | $0.0078 |
 | 20% of attempts fail | 200 | 0 | 1.255 | 917 ms | 2,085 ms | $0.0077 |
 
-35 calls hit at least one injected failure. None failed, and the 1.255 attempts per call landed almost exactly on the arithmetic. Every chaos run scored 40/40 (scored leniently, so not comparable with the last article's 92%). Retries hid a 20% failure rate completely, at the price of about 25% more requests and about 400 ms on the slowest 1 in 20 calls.
+35 calls hit at least one failure. None of them failed. Retries hid the errors completely, at the price of about 25% more requests and about 400 ms more on the slowest calls.
 
-Two caveats. Cost stayed flat only because my fake failures happen before the request is sent; a real timeout may still be billed. And this is one sample: 4 threads share one random generator, so even with a fixed seed the run cannot be replayed exactly.
+The cost stayed flat only because my fake failures never reach the network. A real timeout may still be billed.
 
----
+The first try at each batch stopped early, at about 130 calls. I do not know why, because I had piped the output through a filter and hid whatever error it printed. The table is from the reruns, which completed.
 
-## What retries cannot fix: an outage
+One number I got wrong before writing any code. Anthropic's Python library (the SDK) retries twice on its own by default. I asked myself: if I wrap it in my own loop of 4 attempts, what is the worst case number of requests for one call? I said 3.
 
-My gateway sleeps at most about 3.5 seconds in total across its retries, inside a 90 second deadline. That covers a wobble, not a 20 minute outage.
-
-For that it has a fallback model. When the primary runs out of attempts, or the next wait would blow the deadline (a long `retry-after`, for example), the gateway tries a second model with 2 attempts of its own. The result and the log line are marked `fallback: true`. A 400 never falls back, because a second model will not fix a bad request. All of this is tested against the fake provider only.
-
-A fallback model is also a different model. In the router article Haiku flipped answers between runs while Sonnet never did, and my "send to a human unless all runs agree" rule was tuned on Haiku. Swap the model silently and that rule no longer means what I measured. That is why the fallback flag goes all the way to the caller.
-
-> A fallback model needs its own eval, not an assumption that it behaves like the primary.
+It is 12. Each of my 4 attempts can turn into 3 requests. Two retry loops that do not know about each other multiply. The fix is one setting, `max_retries=0`, so only the gateway retries.
 
 ---
 
-## A rate limiter that does not add up
+## When Anthropic is down
 
-Anthropic limits each organization on requests and tokens per minute. The gateway can take a token bucket: a bucket of permits that holds a few for bursts and refills at a steady rate. Every call waits for a permit before it goes out. It is optional, and it was off in the experiments above. Given the burst result, it is the piece that would stop the crowd forming.
+Retries buy about 3.5 seconds, or longer if the server sends a `retry-after`. The whole call has a 90 second deadline. That helps with a hiccup and does nothing in a 20 minute outage.
 
-Then I was asked a question I only half answered. Ledgerly runs 6 worker processes. What happens to the limit?
+The gateway can also fall back to a second model. It is off by default. When the first model runs out of attempts, or the next wait would blow the deadline, the gateway gives the fallback model 2 attempts. A bad request (a 400) never falls back, because a second model would get the same bad request. I have tested this against a fake provider only.
 
-Each process has its own bucket, so the real rate can reach 6 times the setting. I got that far. I did not know the fix. The limit belongs to the account, not to a process, so the bucket has to live somewhere every worker shares: a store like Redis, or one central gateway service. Giving each worker a sixth of the limit wastes capacity when workers idle and breaks the day someone adds a seventh.
+The fallback brings its own problem. In the router article, Haiku changed its answer between runs on some tickets, and Sonnet never did. My rule for sending unclear tickets to a human, based on how often runs agree, was tuned on Haiku. If Sonnet quietly took over, that rule would stop meaning what I measured. So the result tells the caller which model answered, and the caller can send fallback answers to a human.
 
----
-
-## What will it cost a month?
-
-A month costs: calls per day × 30 × (input tokens × input price + output tokens × output price). At the prices I used (per million tokens: Haiku 5.5 $0.10 in and $0.50 out, Sonnet 5.5 $2 and $10), you can do it in your head. Check the pricing page before trusting any table, including mine.
-
-The router uses about 333 input and 9 output tokens per ticket, measured from the gateway's log. At Ledgerly's 2,000 tickets a day, that is about $2 a month on Haiku and about $45 on Sonnet. At 50,000 a day, $57 against $1,134. I had guessed $30 for Haiku at that volume, so within 2x.
-
-The model choice is the 20x decision. Sonnet's prices are exactly 20 times Haiku's, so at the same token counts it costs 20 times as much. I never measured Sonnet's token counts on this task, so treat its figures as rough.
-
-That corrects my last article, which quoted about $85 a month for Sonnet at 2,000 tickets a day. That came from the Claude Code CLI's cost field, which covers whatever the CLI sent, not just my prompt. Measure cost where you will pay it.
-
-Thinking barely matters here. Haiku 5.5 can think before it answers, and thinking is billed as output, which is why a one-word label shows about 9 output tokens. Low effort cut output from 368 to 196 tokens across the 40 tickets, but the cost dropped only about 6%, because input dominates a label-only task. Latency stayed around 870 ms either way.
+And a second model from the same provider does not help when that provider is down. For ticket routing, Ledgerly already has a fallback that does not depend on Anthropic: the keyword rules. That is not wired into the gateway yet. The rollout plan from the last article already makes the rules the fallback once the LLM is in charge.
 
 ---
 
-## Prompt caching, and how to make it cost more
+## 6 workers, 6 times the rate limit
 
-If many calls start with the same long opening (the prefix), the provider can cache it. On Haiku and Sonnet, the first call pays 1.25 times the input price to write the cache, and calls in the next 5 minutes read it at 0.1 times.
+Anthropic limits each organization on requests and tokens per minute. The gateway has an optional limiter that hands out permits at a steady rate, and every call waits for one before it goes out. It counts requests, not tokens.
 
-I built a 3,856 token system prompt (the router prompt plus 30 example tickets) and ran 20 calls three ways. I guessed caching would cut the cost to a tenth. Worked through properly, 1.25 + 19 × 0.1 = 3.15 against 20, so about 6.3x cheaper.
+Then the platform lead asked: "We run 6 worker processes. What happens to your limit?"
 
-| Run | Cache write | Cache read | Cost | Against no cache |
-|---|---|---|---|---|
-| No caching | 0 | 0 | $0.00795 | 1.0x |
-| Cache the system prompt | 3,856 | 73,264 | $0.00145 | 5.5x cheaper |
-| Same, with the current time at the start | 77,380 | 0 | $0.00991 | 25% more expensive |
-
-Caching came in at 5.5x, a bit under 6.3x, because each ticket and answer are never cached.
-
-The third run is the one to remember. A teammate puts the current time at the top of the system prompt. Caching matches on the prefix, so every call now starts with something new, pays the write premium, and reads nothing back. Caching made the bill higher than no caching, and nothing errored.
-
-> The only symptom was a zero in `cache_read_input_tokens`. If you do not log it, you will not see it.
-
-Put everything that changes (the time, the user's name, the ticket) after the cached part. Two things I did not test: many calls firing at once before the cache exists, and the router's own 333 token input, which is probably too short to cache at all.
+I got half of it. Each process has its own limiter, so together they can send up to 6 times the rate, and the provider still sends 429s. I did not know the fix. Anthropic counts the limit across the whole organization, so the limiter has to live somewhere every worker can see. That could be a shared store like Redis, or one central gateway that every worker calls. Splitting the limit by hand, a sixth per worker, wastes capacity when workers are idle and breaks the day someone adds a seventh.
 
 ---
 
-## Latency and the log
+## What it costs a month
 
-Streaming moves the first word, not the last. A 400 word answer on Haiku arrived complete in 4.3 seconds either way, but streamed, the first word showed up at 0.85 seconds instead of 4.3. For the router's one-word answer, streaming changes nothing. For a chat reply, it is most of what the user feels.
+First, a correction. My last article said Sonnet would cost about $85 a month at 2,000 tickets a day. That number came from the Claude Code CLI's own cost field, which is not what the API bills.
 
-Every call, success or failure, writes one log line: use case, model requested and model used, attempts and error types, latency, the four token counts, cost and request id. It never writes the prompt or the response, because tickets carry customer data. It stores a fingerprint of the prompt and its length instead, so you can spot a prompt that suddenly grew without storing what it said.
+Measured through the gateway, a ticket uses about 333 input tokens and 9 output tokens on Haiku. At 2,000 tickets a day that is about $2 a month on Haiku.
 
-That log answers the platform lead's next question: "Why is today's bill 5 times yesterday's?" Group by day, use case and model, then check attempts per call for a retry storm, input tokens per call for a prompt that grew, and cache reads for a cache that stopped hitting.
+At those same token counts Sonnet would be about $45. But I never measured Sonnet's tokens on this task, and Sonnet thinks before it answers by default, which is billed as output. So the honest Sonnet figure is somewhere between $45 and the old $85 until I measure it.
+
+The prices I used were $0.10 and $0.50 per million input and output tokens for Haiku 5.5, and $2 and $10 for Sonnet 5.5. Sonnet costs 20 times as much per token, so the model choice matters far more than any tuning. Turning Haiku's thinking down to low effort cut its output tokens nearly in half and the bill by only about 6%, because the input is most of the cost.
+
+At 50,000 tickets a day, Haiku comes to about $57 a month. I had guessed $30.
+
+---
+
+## The caching trap
+
+If many calls start with the same long text, the provider can cache it. On Haiku and Sonnet the first call pays 1.25 times the normal input price to store it, and calls in the next 5 minutes read it back at a tenth of the price.
+
+I tested it with a long, synthetic system prompt: 3,856 tokens of repeated policy text, followed by a short question on each of 20 calls. I guessed caching would cut the cost to a tenth. Worked out properly, 1.25 for the first call plus 0.1 for each of the other 19 is 3.15, against 20 without caching. That is about 6.3 times cheaper.
+
+| Run | Stored in cache | Read from cache | Cost |
+|---|---|---|---|
+| No caching | 0 | 0 | $0.00795 |
+| Caching on | 3,856 | 73,264 | $0.00145 (5.5x cheaper) |
+| Caching on, current time at the top of the prompt | 77,380 | 0 | $0.00991 (25% more expensive) |
+
+5.5 times cheaper, a little under the estimate, because the questions and answers are never cached.
+
+Now imagine a teammate adds the current time to the top of the system prompt. It looks harmless. But the cache only matches if the start of the prompt is identical, so every call stored a fresh copy at the premium price and never read one back. Caching made the bill 25% higher than no caching at all.
+
+> Nothing errored. The only sign was a zero in `cache_read_input_tokens`.
+
+Put anything that changes, like the time, the user's name or the ticket, after the part you want cached. Two things I have not tested: many calls arriving at once before the cache exists, and the router's own prompt, which at about 333 tokens is probably too short to cache at all.
+
+This is also why the gateway logs every call: the model, attempts, latency, all four token counts and the cost. It never stores the prompt or the reply, because tickets carry customer data. When the bill jumps, those columns tell you whether it was more calls, more retries, a prompt that grew, or a cache that stopped working.
 
 ---
 
 ## What I would tell Ledgerly's platform lead
 
-At 9am on Monday, random rate-limit blips are covered: with 20% of attempts failing, 200 of 200 calls completed, at the cost of about 25% more requests. A synchronized burst is not covered by retries alone. Before launch, turn on the rate limiter, move it into a store all 6 workers share, and move work that can wait off the morning peak or onto the Batch API (cheaper, with results within hours).
+Is it ready for 9am on Monday? Not yet.
 
-When Anthropic is down, retries cover seconds, not minutes. The fallback model is the same provider, so a full outage takes both. For ticket routing an honest fallback already exists: the keyword rules. That is not wired into the gateway yet, but the rollout plan already makes them the fallback once the LLM is in charge. I would add a circuit breaker so calls fail in milliseconds during an outage instead of each one working through its retries.
+Random errors are covered. With 20% of attempts failing, all 200 calls completed. The Monday burst is not. Before launch, I would turn on the rate limiter, share it across all 6 workers, and move work that can wait off the morning peak, or onto the Batch API, which is cheaper and returns results within 24 hours.
 
-The monthly cost at 2,000 tickets a day is about $2 on Haiku and about $45 on Sonnet. Thinking effort barely matters, and caching probably does not apply to a prompt this short. Quote it as a range, check it against the real log in the first week, and agree on alerts before launch: daily spend per use case, attempts per call, and cache reads.
+When Anthropic is down, the gateway buys seconds and the keyword rules have to take over. I would wire that up, and add a circuit breaker so calls fail immediately during an outage instead of each one working through its retries.
+
+The bill is about $2 a month on Haiku at 2,000 tickets a day. I would check it against the real log in the first week, and agree on three alerts before launch: daily spend, attempts per call, and cache reads.
 
 ---
 
 ## If you are building something similar
 
-1. Make retries testable. Pass the provider, the clock and the sleep in as arguments. My 48 tests run offline in 3 seconds.
-2. Have one owner of retries. Wrapped around the SDK's own retries, 4 attempts became up to 12 requests. Set `max_retries=0`.
-3. Never retry what cannot succeed: 400, 401, 403, 404, 413, or any error you do not recognise.
-4. Use jitter, and know what it buys. It stops synchronized waves. It did not save 20 of 50 clients in a burst with only 4 attempts. A shared rate limiter does that job.
-5. Run chaos before production does. 20% of attempts failing cost 25% more requests and no failed calls. Know that number before the first bad Monday.
-6. Price the model choice first. Sonnet's price is 20x Haiku's. Thinking effort moved my bill by about 6%.
-7. Verify caching from the usage numbers. A timestamp at the front made caching 25% more expensive than none, and the only sign was a zero in the log.
+1. Make the gateway testable offline. I pass in the provider, the clock and the sleep, so tests use a fake provider and fake time. 48 tests run in about 3 seconds and cost nothing.
+2. Let one layer own retries. Wrapped around the SDK's own retries, my 4 attempts could become 12 requests.
+3. Test a burst, not just random errors. My gateway shrugged off 20% random failures and still lost 20 of 50 clients to a simulated 9am crowd.
+4. Check caching in the usage numbers. A timestamp at the top of the prompt made caching more expensive than no caching, and nothing errored.
 
-Is it ready for 9am on Monday? For random blips, yes, and I have the numbers. For a synchronized burst, not until the shared rate limiter is on. For a real outage, the gateway buys seconds, and the keyword rules have to cover the rest.
+What does your LLM call log track that mine does not?
