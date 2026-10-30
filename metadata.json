@@ -101,10 +101,9 @@
     },
     {
       "slug": "10-what-happens-at-9am-on-monday",
-      "title": "What Happens to Your LLM App at 9am on Monday?",
+      "title": "What Happens to Your AI App at 9am on Monday?",
       "date": "2026-10-28",
       "year": 2026,
-      "status": "draft",
       "tags": ["llm", "ai-engineering", "reliability", "rate-limiting", "prompt-caching", "claude", "cost"],
       "source": "linkedin",
       "path": "articles/2026/llm-gateway/10-what-happens-at-9am-on-monday.md"

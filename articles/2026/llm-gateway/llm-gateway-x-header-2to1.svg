@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 800" width="1600" height="800" font-family="-apple-system, 'Helvetica Neue', Helvetica, Arial, sans-serif">
+  <rect width="1600" height="800" fill="#f5efe3"/>
+  <g transform="translate(0,80) scale(1.0667)">
+  <text x="80" y="190" font-size="20" font-weight="700" letter-spacing="4" fill="#8a6d3b">LLM GATEWAY  ·  9AM MONDAY</text>
+  <text x="80" y="262" font-size="54" font-weight="800" fill="#14213d">Retries can't beat</text>
+  <text x="80" y="326" font-size="54" font-weight="800" fill="#14213d">the 9am rush.</text>
+  <text x="80" y="400" font-size="28" font-weight="800" fill="#c8402c">20 of 50 clients got an error</text>
+  <g transform="translate(540,-40) scale(0.78)">
+<g transform="translate(0,-34)">
+  <g stroke="#14213d" stroke-width="14" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <path d="M80 290L800 440H930"/>
+    <path d="M80 650L800 500H930"/>
+  </g>
+  <text x="865" y="410" font-size="22" font-weight="700" text-anchor="middle" fill="#14213d">10 per second</text>
+  <g fill="#2f8f5b"><circle cx="760" cy="470" r="16"/><circle cx="714" cy="470" r="16"/><circle cx="668" cy="447" r="16"/><circle cx="668" cy="493" r="16"/><circle cx="622" cy="447" r="16"/><circle cx="622" cy="493" r="16"/><circle cx="576" cy="424" r="16"/><circle cx="576" cy="470" r="16"/><circle cx="576" cy="516" r="16"/><circle cx="530" cy="424" r="16"/><circle cx="530" cy="470" r="16"/><circle cx="530" cy="516" r="16"/><circle cx="484" cy="424" r="16"/><circle cx="484" cy="470" r="16"/><circle cx="484" cy="516" r="16"/><circle cx="438" cy="401" r="16"/><circle cx="438" cy="447" r="16"/><circle cx="438" cy="493" r="16"/><circle cx="438" cy="539" r="16"/><circle cx="392" cy="401" r="16"/><circle cx="392" cy="447" r="16"/><circle cx="392" cy="493" r="16"/><circle cx="392" cy="539" r="16"/><circle cx="346" cy="378" r="16"/><circle cx="346" cy="424" r="16"/><circle cx="346" cy="470" r="16"/><circle cx="346" cy="516" r="16"/><circle cx="960" cy="470" r="16"/><circle cx="1030" cy="470" r="16"/><circle cx="1100" cy="470" r="16"/></g>
+  <g fill="#c8402c"><circle cx="346" cy="562" r="16"/><circle cx="300" cy="378" r="16"/><circle cx="300" cy="424" r="16"/><circle cx="300" cy="470" r="16"/><circle cx="300" cy="516" r="16"/><circle cx="300" cy="562" r="16"/><circle cx="254" cy="378" r="16"/><circle cx="254" cy="424" r="16"/><circle cx="254" cy="470" r="16"/><circle cx="254" cy="516" r="16"/><circle cx="254" cy="562" r="16"/><circle cx="208" cy="355" r="16"/><circle cx="208" cy="401" r="16"/><circle cx="208" cy="447" r="16"/><circle cx="208" cy="493" r="16"/><circle cx="208" cy="539" r="16"/><circle cx="208" cy="585" r="16"/><circle cx="162" cy="355" r="16"/><circle cx="162" cy="401" r="16"/><circle cx="162" cy="447" r="16"/></g>
+  <g stroke="#f5efe3" stroke-width="3.5" stroke-linecap="round"><path d="M340 556l12 12M352 556l-12 12"/><path d="M294 372l12 12M306 372l-12 12"/><path d="M294 418l12 12M306 418l-12 12"/><path d="M294 464l12 12M306 464l-12 12"/><path d="M294 510l12 12M306 510l-12 12"/><path d="M294 556l12 12M306 556l-12 12"/><path d="M248 372l12 12M260 372l-12 12"/><path d="M248 418l12 12M260 418l-12 12"/><path d="M248 464l12 12M260 464l-12 12"/><path d="M248 510l12 12M260 510l-12 12"/><path d="M248 556l12 12M260 556l-12 12"/><path d="M202 349l12 12M214 349l-12 12"/><path d="M202 395l12 12M214 395l-12 12"/><path d="M202 441l12 12M214 441l-12 12"/><path d="M202 487l12 12M214 487l-12 12"/><path d="M202 533l12 12M214 533l-12 12"/><path d="M202 579l12 12M214 579l-12 12"/><path d="M156 349l12 12M168 349l-12 12"/><path d="M156 395l12 12M168 395l-12 12"/><path d="M156 441l12 12M168 441l-12 12"/></g>
+</g>
+    </g>
+</g>
+</svg>

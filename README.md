@@ -16,7 +16,7 @@ A collection of my articles and posts from LinkedIn and X/Twitter.
 | 2026-06-03 | [When Your LLM Gets Retired: What You Actually Need to Do](articles/2026/model-retirement/07-when-your-llm-gets-retired.md) | 📝 Draft | llm, model-deprecation, migration, ai-engineering, mlops |
 | 2026-07-15 | [Finding My Parents in a 24-Year-Old Scanned Voter Roll](articles/2026/voter-search/08-finding-parents-2002-voter-rolls-linkedin.txt) (post) | 📝 Draft | ai-agents, claude-code, ocr, kannada, civic-tech |
 | 2026-10-26 | [Is Your LLM Ticket Router Good Enough to Ship?](articles/2026/llm-ticket-triage/09-is-your-llm-router-good-enough-to-ship.md) | ✓ | llm, evals, ai-engineering, claude, shadow-mode |
-| 2026-10-28 | [What Happens to Your LLM App at 9am on Monday?](articles/2026/llm-gateway/10-what-happens-at-9am-on-monday.md) | 📝 Draft | llm, reliability, rate-limiting, prompt-caching, cost |
+| 2026-10-28 | [What Happens to Your AI App at 9am on Monday?](articles/2026/llm-gateway/10-what-happens-at-9am-on-monday.md) | ✓ | llm, reliability, rate-limiting, prompt-caching, cost |
 
 ---
 

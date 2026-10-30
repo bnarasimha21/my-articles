@@ -1,4 +1,4 @@
-What Happens to Your LLM App at 9am on Monday?
+What Happens to Your AI App at 9am on Monday?
 
 My LLM gateway retried its way through a 20% failure rate without dropping a single call. Then I simulated 9am on Monday, and 20 of 50 clients got an error anyway.
 
@@ -41,9 +41,9 @@ The simulation is simple. It ignores the retry-after header a real 429 can carry
 
 · · ·
 
-💥 Random errors are a different story
+💥 When retries do work
 
-The gateway has a chaos switch that makes a share of attempts fail on purpose, with a fake 429 or timeout, before they reach the network. These failures are random and independent. One call failing says nothing about the next.
+The gateway has a chaos switch that makes a share of attempts fail on purpose, with an injected 429 or timeout, before they reach the network. These failures are random and independent. One call failing says nothing about the next.
 
 I set it to 20% and worked out what to expect first. A call fails only if all 4 attempts fail: 0.2 × 0.2 × 0.2 × 0.2 = 0.16%. On average each call should need about 1.25 attempts.
 
@@ -61,9 +61,9 @@ Clean run, 200 calls:
 
 35 calls hit at least one failure. None of them failed. Retries hid the errors completely, at the price of about 25% more requests and about 400 ms more on the slowest calls.
 
-The cost stayed flat only because my fake failures never reach the network. A real timeout may still be billed.
+The cost stayed flat only because my injected failures never reach the network. A real timeout may still be billed.
 
-The first try at each batch stopped early, at about 130 calls. I do not know why, because I had piped the output through a filter and hid whatever error it printed. The table is from the reruns, which completed.
+The first try at each batch stopped early, at about 130 calls. I do not know why, because I had piped the output through a filter and hid whatever error it printed. These numbers are from the reruns, which completed.
 
 One number I got wrong before writing any code. Anthropic's Python library (the SDK) retries twice on its own by default. I asked myself: if I wrap it in my own loop of 4 attempts, what is the worst case number of requests for one call? I said 3.
 
@@ -75,7 +75,7 @@ It is 12. Each of my 4 attempts can turn into 3 requests. Two retry loops that d
 
 Retries buy about 3.5 seconds, or longer if the server sends a retry-after. The whole call has a 90 second deadline. That helps with a hiccup and does nothing in a 20 minute outage.
 
-The gateway can also fall back to a second model. It is off by default. When the first model runs out of attempts, or the next wait would blow the deadline, the gateway gives the fallback model 2 attempts. A bad request (a 400) never falls back, because a second model would get the same bad request. I have tested this against a fake provider only.
+The gateway can also fall back to a second model. It is off by default. When the first model runs out of attempts, or the next wait would blow the deadline, the gateway gives the fallback model 2 attempts. A bad request (a 400) never falls back, because a second model would get the same bad request. I have tested this against a simulated provider only.
 
 The fallback brings its own problem. In the router article, Haiku changed its answer between runs on some tickets, and Sonnet never did. My rule for sending unclear tickets to a human, based on how often runs agree, was tuned on Haiku. If Sonnet quietly took over, that rule would stop meaning what I measured. So the result tells the caller which model answered, and the caller can send fallback answers to a human.
 
@@ -144,7 +144,7 @@ The bill is about $2 a month on Haiku at 2,000 tickets a day. I would check it a
 
 ✅ If you are building something similar
 
-1. Make the gateway testable offline. I pass in the provider, the clock and the sleep, so tests use a fake provider and fake time. 48 tests run in about 3 seconds and cost nothing.
+1. Make the gateway testable offline. I pass in the provider, the clock and the sleep, so tests can use a simulated provider and a clock they control. 48 tests run in about 3 seconds and cost nothing.
 
 2. Let one layer own retries. Wrapped around the SDK's own retries, my 4 attempts could become 12 requests.
 
