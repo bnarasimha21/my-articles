@@ -1,10 +1,10 @@
 # Article 10 post copy (LinkedIn + X)
 
-Attach the new funnel cover image to both posts.
+Attach the cover image to the LinkedIn post. For the X article header use llm-gateway-x-header-2to1.png (3200x1600), or llm-gateway-x-header.png (5:2) if X shows a wider frame.
 
 ## LinkedIn post (main)
 
-Paste this into the post box. Only the first two lines show before "see more", so they carry the hook. It opens with a belief that breaks, then puts the reader's own app in the picture. About 593 characters.
+Paste this into the post box. Only the first two lines show before "see more", so they carry the hook. It opens with a belief that breaks, then puts the reader's own app in the picture. About 595 characters.
 
 ```
 I was sure my LLM retry logic was solid. I made 20% of attempts fail on purpose and it dropped zero calls out of 200.
@@ -22,7 +22,7 @@ You are publishing this as a LinkedIn article, so paste this into the post text 
 
 ## LinkedIn post (alternative: plain results summary)
 
-Paste this into the post box. Only the first two lines show before "see more", so they carry the hook. About 560 characters. More of a report than a story.
+Paste this into the post box. Only the first two lines show before "see more", so they carry the hook. About 550 characters. More of a report than a story.
 
 ```
 My LLM gateway retried its way through 20% of attempts failing without dropping a single call.
@@ -43,7 +43,7 @@ Which of these would you have caught before production?
 
 Same as above: the article attaches below the post, so no link is needed.
 
-## LinkedIn post (longer alternative, about 1,400 characters)
+## LinkedIn post (longer alternative, about 1,160 characters)
 
 Use this if you want the full story in the post. It adds the platform lead's questions, the jitter finding and the $85 correction.
 
@@ -60,7 +60,7 @@ Three things surprised me:
 → Two retry loops multiply. I guessed my worst case was 3 requests per call. It was 12.
 → One timestamp at the top of a prompt made caching 25% more expensive than no caching. Nothing errored.
 
-I also corrected a number from my last article. Sonnet would not cost $85 a month for ticket routing. That figure came from the CLI's cost field, which is not what the API bills.
+I also corrected a number from my last article. The $85 a month for Sonnet came from the CLI's cost field, which is not what the API bills. The real figure is somewhere between $45 and $85 until I measure it.
 
 The full write-up has the simulation, the measured costs, and what I would fix before launch.
 
@@ -89,7 +89,7 @@ Then 50 clients hit it in the same second, against a server that allows 10 a sec
 Write-up:
 ```
 
-Link goes right after the last line. No hashtags. About 215 characters with the link counted as 23.
+Link goes right after the last line. No hashtags. About 240 characters with the link counted as 23.
 
 ## X post (longer, if you have long posts enabled)
 
@@ -114,7 +114,7 @@ Write-up with the numbers:
 5. One honest line, like a correction, a miss, or something you did not test. This builds trust and gives people something to reply to.
 6. End with a question the reader can answer in one line.
 
-Last time's one-liner gave no reason to stop scrolling, and it had no number, no story and no question. This version leads with a number and a twist.
+Lead with a number and a twist, not a summary line.
 
 Reply to early comments yourself. It helps the post, and the question at the end is there to start them.
 

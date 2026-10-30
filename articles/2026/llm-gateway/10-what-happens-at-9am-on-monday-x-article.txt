@@ -57,7 +57,7 @@ Then I ran the router from the last article through the gateway: 40 tickets, 5 r
 
 The cost stayed flat only because my injected failures never reach the network. A real timeout may still be billed.
 
-The first try at each batch stopped early, at about 130 calls. I do not know why, because I had piped the output through a filter and hid whatever error it printed. The table is from the reruns, which completed.
+The first try at each batch stopped early, at about 130 calls. I do not know why, because I had piped the output through a filter and hid whatever error it printed. These numbers are from the reruns, which completed.
 
 One number I got wrong before writing any code. Anthropic's Python library (the SDK) retries twice on its own by default. I asked myself: if I wrap it in my own loop of 4 attempts, what is the worst case number of requests for one call? I said 3.
 
